@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Civic Sense - Report a Problem</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        /* 🔥 Gradient Background */
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #3a7bd5, #3a6073, #00c6ff);
+            background-size: 300% 300%;
+            animation: gradientMove 15s ease infinite;
+            color: #fff;
+        }
+
+        header {
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.6em;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            max-width: 650px;
+            margin: 30px auto;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(12px);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.2);
+            animation: fadeIn 0.8s ease;
+        }
+
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        label {
+            margin-top: 15px;
+            font-weight: bold;
+            color: #00e6ff;
+        }
+
+        select, textarea, input[type="text"], input[type="email"], input[type="file"] {
+            margin-top: 5px;
+            padding: 10px;
+            font-size: 1em;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+        }
+
+        textarea {
+            min-height: 100px;
+        }
+
+        button {
+            margin-top: 25px;
+            background-color: #00c6ff;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 1.1em;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #0099cc;
+            transform: scale(1.05);
+        }
+
+        .suggestion {
+            margin-top: 20px;
+            font-style: italic;
+            color: #eee;
+        }
+
+        /* 📷 Photo preview */
+        #photoPreviewContainer {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        #photoPreviewContainer img {
+            max-width: 120px;
+            border-radius: 6px;
+            border: 2px solid rgba(255,255,255,0.4);
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+        }
+
+        /* 🌟 Navigation bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
+        }
+
+        .nav-item {
+            color: #fff;
+            text-align: center;
+            flex-grow: 1;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: #00e6ff;
+            transform: scale(1.1);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover .nav-icon {
+            transform: rotate(-10deg) scale(1.2);
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>Report a Problem</header>
+
+    <main>
+        <form id="reportForm">
+            <label for="reportType">What type of report do you want to submit?</label>
+            <select id="reportType" name="reportType" required>
+                <option value="" disabled selected>Select report type</option>
+                <option value="infrastructure">Infrastructure Issue</option>
+                <option value="environment">Environmental Concern</option>
+                <option value="safety">Safety Issue</option>
+                <option value="other">Other</option>
+            </select>
+
+            <label for="description">Description</label>
+            <textarea id="description" name="description" placeholder="Describe the issue..." required></textarea>
+
+            <label for="contactName">Your Name</label>
+            <input type="text" id="contactName" name="contactName" placeholder="Your full name" required />
+
+            <label for="contactEmail">Your Email</label>
+            <input type="email" id="contactEmail" name="contactEmail" placeholder="Your email address" required />
+
+            <label for="photoUpload">Upload or Take Photos</label>
+            <input type="file" id="photoUpload" name="photos" accept="image/*" capture="environment" multiple />
+            <div id="photoPreviewContainer"></div>
+
+            <button type="submit">Submit Report</button>
+        </form>
+        <p class="suggestion" id="suggestionText">Please select a report type to get suggestions.</p>
+    </main>
+
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-item" title="Home"><i class="fas fa-home nav-icon"></i></a>
+        <a href="news.html" class="nav-item" title="News Features"><i class="fas fa-newspaper nav-icon"></i></a>
+        <a href="report.html" class="nav-item" title="Report a Problem"><i class="fas fa-exclamation-triangle nav-icon"></i></a>
+        <a href="posts.html" class="nav-item" title="Posts"><i class="fas fa-image nav-icon"></i></a>
+        <a href="reels.html" class="nav-item" title="Reels"><i class="fas fa-video nav-icon"></i></a>
+    </nav>
+
+    <script>
+        const reportTypeSelect = document.getElementById('reportType');
+        const suggestionText = document.getElementById('suggestionText');
+        const reportForm = document.getElementById('reportForm');
+        const photoUpload = document.getElementById('photoUpload');
+        const photoPreviewContainer = document.getElementById('photoPreviewContainer');
+
+        const suggestions = {
+            infrastructure: "Please provide details about the location and nature of the infrastructure issue.",
+            environment: "Include information about the environmental concern and any visible impact.",
+            safety: "Describe the safety issue and any immediate risks involved.",
+            other: "Provide as much detail as possible about your report."
+        };
+
+        reportTypeSelect.addEventListener('change', () => {
+            const selected = reportTypeSelect.value;
+            suggestionText.textContent = suggestions[selected] || "Please select a report type to get suggestions.";
+        });
+
+        // 📸 Photo Preview
+        photoUpload.addEventListener('change', () => {
+            photoPreviewContainer.innerHTML = '';
+            Array.from(photoUpload.files).forEach(file => {
+                const reader = new FileReader();
+                reader.onload = e => {
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    photoPreviewContainer.appendChild(img);
+                };
+                reader.readAsDataURL(file);
+            });
+        });
+
+        reportForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            alert('Report submitted successfully! Thank you for your feedback.');
+            reportForm.reset();
+            photoPreviewContainer.innerHTML = '';
+            suggestionText.textContent = "Please select a report type to get suggestions.";
+        });
+    </script>
+</body>
+</html>

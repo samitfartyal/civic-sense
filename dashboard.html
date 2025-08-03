@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Civic Sense Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        /* 🎨 Gradient Background with Animation */
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            margin: 0;
+            font-family: 'Segoe UI', Tahoma, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #3a7bd5, #3a6073, #00c6ff);
+            background-size: 300% 300%;
+            animation: gradientMove 15s ease infinite;
+            color: #fff;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* ✨ Floating Animated Shapes */
+        .shape {
+            position: absolute;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.15);
+            animation: float 10s infinite alternate ease-in-out;
+            z-index: 0;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(0px) translateX(0px); }
+            100% { transform: translateY(-60px) translateX(30px); }
+        }
+
+        /* Dashboard Content */
+        main {
+            flex: 1;
+            padding: 30px;
+            text-align: center;
+            animation: fadeIn 1s ease;
+            position: relative;
+            z-index: 2;
+        }
+
+        h1 {
+            color: #ffffff;
+            text-shadow: 2px 2px 10px rgba(0,0,0,0.4);
+        }
+
+        p {
+            color: #e0e0e0;
+            font-size: 1.1em;
+        }
+
+        /* 🌟 Reels Section */
+        #reelsFeed {
+            margin-top: 30px;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        #reelItems div {
+            padding: 20px;
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+        }
+
+        #reelItems div:hover {
+            transform: translateY(-6px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+            background: rgba(255, 255, 255, 0.25);
+        }
+
+        #reelItems h3 {
+            color: #00e6ff;
+            margin-bottom: 8px;
+        }
+
+        /* 🌟 Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background-color: rgba(0, 0, 0, 0.4);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 12px 0;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 -2px 15px rgba(0,0,0,0.4);
+            z-index: 3;
+        }
+
+        .nav-item {
+            color: #ffffff;
+            text-align: center;
+            flex-grow: 1;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: transform 0.3s ease, color 0.3s ease;
+            padding: 8px 0;
+        }
+
+        .nav-item:hover {
+            color: #00e6ff;
+            transform: scale(1.15);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 5px;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-item:hover .nav-icon {
+            transform: rotate(-10deg) scale(1.2);
+            color: #00e6ff;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <!-- ✨ Floating Shapes -->
+    <div class="shape" style="width:120px; height:120px; top:10%; left:5%; animation-duration: 12s;"></div>
+    <div class="shape" style="width:80px; height:80px; top:50%; right:10%; animation-duration: 10s;"></div>
+    <div class="shape" style="width:150px; height:150px; bottom:15%; left:30%; animation-duration: 14s;"></div>
+
+    <main>
+        <h1>Welcome to Civic Sense Dashboard</h1>
+        <p>Select an option below to navigate.</p>
+
+        <section id="reelsFeed">
+            <h2 style="color:#00e6ff; margin-bottom:15px;">Reels</h2>
+            <div id="reelItems" style="display: flex; flex-direction: column; gap: 20px;">
+                <!-- Reels will be inserted here -->
+            </div>
+        </section>
+    </main>
+
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-item" title="Home"><i class="fas fa-home nav-icon"></i></a>
+        <a href="news.html" class="nav-item" title="News Features"><i class="fas fa-newspaper nav-icon"></i></a>
+        <a href="report.html" class="nav-item" title="Report a Problem"><i class="fas fa-exclamation-triangle nav-icon"></i></a>
+        <a href="posts.html" class="nav-item" title="Posts"><i class="fas fa-image nav-icon"></i></a>
+        <a href="reels.html" class="nav-item" title="Reels"><i class="fas fa-video nav-icon"></i></a>
+    </nav>
+
+    <script>
+        const reelsData = [
+            { title: "Sunset Timelapse", author: "Noah Davis", date: "April 9, 2024",
+              videoUrl: "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4" },
+            { title: "Street Art Tour", author: "Sophia Martinez", date: "April 10, 2024",
+              videoUrl: "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4" },
+            { title: "Mountain Hiking", author: "James Wilson", date: "April 11, 2024",
+              videoUrl: "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4" }
+        ];
+
+        const reelItemsContainer = document.getElementById('reelItems');
+
+        function getRandomReels(num = 3) {
+            const shuffled = reelsData.sort(() => 0.5 - Math.random());
+            return shuffled.slice(0, num);
+        }
+
+        function renderReels() {
+            reelItemsContainer.innerHTML = '';
+            const randomReels = getRandomReels();
+            randomReels.forEach(reel => {
+                const reelEl = document.createElement('div');
+                reelEl.innerHTML = `
+                    <h3>${reel.title}</h3>
+                    <p><em>By ${reel.author} | ${reel.date}</em></p>
+                    <video width="100%" controls>
+                        <source src="${reel.videoUrl}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                `;
+                reelItemsContainer.appendChild(reelEl);
+            });
+        }
+
+        renderReels();
+    </script>
+</body>
+</html>

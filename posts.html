@@ -1,0 +1,376 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Civic Sense - Posts</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        /* Gradient Background */
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #3a7bd5, #3a6073, #00c6ff);
+            background-size: 300% 300%;
+            animation: gradientMove 15s ease infinite;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .post {
+            position: relative;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.8s ease;
+            padding: 15px;
+            color: #fff;
+        }
+
+        .post-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #00e6ff;
+        }
+
+        .post-author {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            color: #ccc;
+        }
+
+        .post-excerpt {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .post-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .action-btn {
+            cursor: pointer;
+            color: #fff;
+            font-size: 1.3em;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            color: #00e6ff;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
+            z-index: 20;
+        }
+
+        .nav-item {
+            color: #fff;
+            text-align: center;
+            flex-grow: 1;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: #00e6ff;
+            transform: scale(1.1);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover .nav-icon {
+            transform: rotate(-10deg) scale(1.2);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>Civic Sense Posts</header>
+    
+    <!-- Upload Form -->
+    <div id="uploadForm" style="width: 100%; max-width: 600px; margin: 20px auto; padding: 20px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <h2 style="text-align: center; color: #00e6ff; margin-bottom: 20px;">Create New Post</h2>
+        <form id="postUploadForm" enctype="multipart/form-data">
+            <div style="margin-bottom: 15px;">
+                <label for="postTitle" style="display: block; margin-bottom: 5px;">Title:</label>
+                <input type="text" id="postTitle" name="title" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="postAuthor" style="display: block; margin-bottom: 5px;">Author:</label>
+                <input type="text" id="postAuthor" name="author" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="postExcerpt" style="display: block; margin-bottom: 5px;">Content:</label>
+                <textarea id="postExcerpt" name="excerpt" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white; height: 80px;"></textarea>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="postImage" style="display: block; margin-bottom: 5px;">Image:</label>
+                <input type="file" id="postImage" name="image" accept="image/*" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white;">
+            </div>
+            <div id="imagePreview" style="margin: 15px 0; display: none;">
+                <h3 style="color: #00e6ff;">Image Preview:</h3>
+                <img id="previewImage" style="width: 100%; border-radius: 8px; max-height: 400px; object-fit: cover;">
+            </div>
+            <button type="submit" style="width: 100%; padding: 12px; background: #00c6ff; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background 0.3s;">Create Post</button>
+        </form>
+    </div>
+    
+    <main id="postsContainer">
+        <!-- Posts will be dynamically inserted here -->
+    </main>
+    
+    <!-- Photo Upload Form -->
+    <div id="uploadForm" style="width: 100%; max-width: 600px; margin: 20px auto; padding: 20px; background: rgba(255, 255, 255, 0.15); border-radius: 12px; display: none;">
+        <h2 style="text-align: center; color: #00e6ff;">Upload Photo</h2>
+        <form id="photoUploadForm">
+            <div style="margin-bottom: 15px;">
+                <label for="photoTitle" style="display: block; margin-bottom: 5px;">Title:</label>
+                <input type="text" id="photoTitle" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="photoAuthor" style="display: block; margin-bottom: 5px;">Your Name:</label>
+                <input type="text" id="photoAuthor" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white;">
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="photoDescription" style="display: block; margin-bottom: 5px;">Description:</label>
+                <textarea id="photoDescription" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white; height: 100px;"></textarea>
+            </div>
+            
+            <div style="margin-bottom: 15px;">
+                <label for="photoFile" style="display: block; margin-bottom: 5px;">Select Photo:</label>
+                <input type="file" id="photoFile" accept="image/*" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white;">
+            </div>
+            
+            <div id="photoPreview" style="margin-bottom: 15px; display: none;">
+                <h3>Preview:</h3>
+                <img id="previewImage" src="" alt="Preview" style="max-width: 100%; max-height: 300px; border-radius: 8px;">
+            </div>
+            
+            <div style="display: flex; justify-content: space-between;">
+                <button type="button" id="cancelUpload" style="padding: 10px 20px; border-radius: 8px; border: none; background: #ff4d4d; color: white; cursor: pointer;">Cancel</button>
+                <button type="submit" style="padding: 10px 20px; border-radius: 8px; border: none; background: #00c6ff; color: white; cursor: pointer;">Upload Photo</button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- Upload Button -->
+    <button id="showUploadForm" style="position: fixed; bottom: 80px; right: 20px; width: 60px; height: 60px; border-radius: 50%; background: #00c6ff; color: white; font-size: 30px; border: none; cursor: pointer; box-shadow: 0 4px 10px rgba(0,0,0,0.3);">+</button>
+
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-item" title="Home">
+            <i class="fas fa-home nav-icon"></i>
+        </a>
+        <a href="news.html" class="nav-item" title="News Features">
+            <i class="fas fa-newspaper nav-icon"></i>
+        </a>
+        <a href="report.html" class="nav-item" title="Report a Problem">
+            <i class="fas fa-exclamation-triangle nav-icon"></i>
+        </a>
+        <a href="posts.html" class="nav-item" title="Posts">
+            <i class="fas fa-image nav-icon"></i>
+        </a>
+        <a href="reels.html" class="nav-item" title="Reels">
+            <i class="fas fa-video nav-icon"></i>
+        </a>
+    </nav>
+
+    <script>
+        // Handle image preview
+        document.getElementById('postImage').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const imagePreview = document.getElementById('imagePreview');
+                const previewImage = document.getElementById('previewImage');
+                imagePreview.style.display = 'block';
+                previewImage.src = URL.createObjectURL(file);
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('postUploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('postTitle').value;
+            const author = document.getElementById('postAuthor').value;
+            const excerpt = document.getElementById('postExcerpt').value;
+            const imageFile = document.getElementById('postImage').files[0];
+            
+            if (!title || !author || !excerpt || !imageFile) {
+                alert('Please fill in all fields and select an image.');
+                return;
+            }
+            
+            // Create FormData object to send files with other data
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('author', author);
+            formData.append('excerpt', excerpt);
+            formData.append('date', new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));
+            formData.append('image', imageFile);
+            
+            // Send to server
+            fetch('/posts', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.error) {
+                    alert('Error: ' + data.error);
+                    return;
+                }
+                
+                // Add to the postsData array for immediate display
+                const newPost = {
+                    title: data.post.title,
+                    author: data.post.author,
+                    excerpt: data.post.excerpt,
+                    date: data.post.date,
+                    imageUrl: data.post.imageUrl
+                };
+                
+                // Add to the postsData array at the beginning
+                postsData.unshift(newPost);
+                
+                // Re-render the posts
+                renderPosts();
+                
+                // Reset the form
+                document.getElementById('postUploadForm').reset();
+                document.getElementById('imagePreview').style.display = 'none';
+                
+                alert('Post created successfully!');
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while creating the post.');
+            });
+        });
+
+        // Sample posts data (in a real app, this would come from the server)
+        const postsData = [
+            {
+                title: "Exploring the City",
+                excerpt: "A beautiful day exploring the city and its hidden gems...",
+                author: "Emma Watson",
+                date: "April 10, 2024",
+                imageUrl: null
+            },
+            {
+                title: "Delicious Homemade Recipes",
+                excerpt: "Sharing some of my favorite homemade recipes for you to try...",
+                author: "Liam Johnson",
+                date: "April 11, 2024",
+                imageUrl: null
+            },
+            {
+                title: "Fitness Journey",
+                excerpt: "How I started my fitness journey and stayed motivated...",
+                author: "Olivia Brown",
+                date: "April 12, 2024",
+                imageUrl: null
+            }
+        ];
+
+        const postsContainer = document.getElementById('postsContainer');
+
+        function renderPosts() {
+            postsContainer.innerHTML = '';
+            postsData.forEach(post => {
+                const postEl = document.createElement('div');
+                postEl.classList.add('post');
+                
+                // Create image element if imageUrl exists
+                let imageHtml = '';
+                if (post.imageUrl) {
+                    imageHtml = `<img src="${post.imageUrl}" alt="${post.title}" style="width: 100%; border-radius: 8px; margin-bottom: 10px;">`;
+                }
+                
+                postEl.innerHTML = `
+                    ${imageHtml}
+                    <div class="post-title">${post.title}</div>
+                    <div class="post-author">By ${post.author} | ${post.date}</div>
+                    <div class="post-excerpt">${post.excerpt}</div>
+                    <div class="post-actions">
+                        <div class="action-btn" title="Like"><i class="fas fa-heart"></i> Like</div>
+                        <div class="action-btn" title="Comment"><i class="fas fa-comment"></i> Comment</div>
+                        <div class="action-btn" title="Share"><i class="fas fa-share"></i> Share</div>
+                    </div>
+                `;
+                postsContainer.appendChild(postEl);
+            });
+        }
+
+        renderPosts();
+    </script>
+</body>
+</html>

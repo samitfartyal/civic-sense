@@ -1,0 +1,103 @@
+
+/* 🌟 Body Styling */
+body {
+  background: linear-gradient(to bottom right, #6bc6ff, #ffffff);
+  color: #333;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 20px;
+}
+
+/* 🌟 Container */
+.container {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  max-width: 900px;
+  width: 100%;
+  padding: 30px;
+  animation: fadeIn 1.2s ease;
+}
+
+/* 🌟 Header */
+header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+header h1 {
+  font-size: 2.5rem;
+  color: #2a7fff;
+  margin-bottom: 10px;
+}
+
+header p {
+  font-size: 1.1rem;
+  color: #555;
+}
+
+/* 🌟 Main Content */
+main section {
+  margin-bottom: 25px;
+  padding: 15px;
+  background: #f9faff;
+  border-left: 5px solid #2a7fff;
+  border-radius: 8px;
+  transition: transform 0.3s ease;
+}
+
+main section:hover {
+  transform: scale(1.02);
+  background: #eef5ff;
+}
+
+h2 {
+  color: #2a7fff;
+  margin-bottom: 10px;
+}
+
+p {
+  line-height: 1.6;
+  color: #444;
+}
+
+/* 🌟 Footer */
+footer {
+  text-align: center;
+  margin-top: 20px;
+  padding-top: 10px;
+  border-top: 1px solid #ddd;
+  color: #666;
+  font-size: 0.9rem;
+}
+
+/* 🌟 Start Button */
+.start-button-container {
+  text-align: center;
+  margin-top: 25px;
+}
+
+.start-button {
+  display: inline-block;
+  padding: 12px 25px;
+  background: #2a7fff;
+  color: #fff;
+  text-decoration: none;
+  border-radius: 30px;
+  font-size: 1.1rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+.start-button:hover {
+  background: #0056cc;
+  transform: translateY(-2px);
+}
+
+/* 🌟 Animation */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}

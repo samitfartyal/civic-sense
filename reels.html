@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Civic Sense - Reels</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
+    <style>
+        /* Gradient Background */
+        @keyframes gradientMove {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            margin: 0;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(135deg, #3a7bd5, #3a6073, #00c6ff);
+            background-size: 300% 300%;
+            animation: gradientMove 15s ease infinite;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        header {
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            color: #fff;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.5em;
+            font-weight: bold;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+            position: sticky;
+            top: 0;
+            z-index: 10;
+        }
+
+        main {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 30px;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .reel {
+            position: relative;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+            overflow: hidden;
+            animation: fadeIn 0.8s ease;
+        }
+
+        video {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 12px 12px 0 0;
+            background: black;
+        }
+
+        .reel-info {
+            padding: 15px;
+            color: #fff;
+        }
+
+        .reel-title {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #00e6ff;
+        }
+
+        .reel-author {
+            font-size: 0.9em;
+            margin-bottom: 10px;
+            color: #ccc;
+        }
+
+        .reel-description {
+            font-size: 1em;
+            margin-bottom: 10px;
+        }
+
+        .reel-actions {
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            border-top: 1px solid rgba(255,255,255,0.2);
+        }
+
+        .action-btn {
+            cursor: pointer;
+            color: #fff;
+            font-size: 1.3em;
+            transition: color 0.3s ease;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .action-btn:hover {
+            color: #00e6ff;
+        }
+
+        /* Navigation Bar */
+        .nav-bar {
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+            background: rgba(0,0,0,0.4);
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            padding: 10px 0;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 -2px 12px rgba(0,0,0,0.3);
+            z-index: 20;
+        }
+
+        .nav-item {
+            color: #fff;
+            text-align: center;
+            flex-grow: 1;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9em;
+            transition: transform 0.3s ease, color 0.3s ease;
+        }
+
+        .nav-item:hover {
+            color: #00e6ff;
+            transform: scale(1.1);
+        }
+
+        .nav-icon {
+            font-size: 24px;
+            display: block;
+            margin-bottom: 5px;
+            transition: transform 0.3s ease;
+        }
+
+        .nav-item:hover .nav-icon {
+            transform: rotate(-10deg) scale(1.2);
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <header>Civic Sense Reels</header>
+    
+    <!-- Upload Form -->
+    <div id="uploadForm" style="width: 100%; max-width: 600px; margin: 20px auto; padding: 20px; background: rgba(255, 255, 255, 0.15); backdrop-filter: blur(10px); border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+        <h2 style="text-align: center; color: #00e6ff; margin-bottom: 20px;">Upload New Reel</h2>
+        <form id="reelUploadForm" enctype="multipart/form-data">
+            <div style="margin-bottom: 15px;">
+                <label for="reelTitle" style="display: block; margin-bottom: 5px;">Title:</label>
+                <input type="text" id="reelTitle" name="title" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="reelAuthor" style="display: block; margin-bottom: 5px;">Author:</label>
+                <input type="text" id="reelAuthor" name="author" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white;">
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="reelDescription" style="display: block; margin-bottom: 5px;">Description:</label>
+                <textarea id="reelDescription" name="description" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white; height: 80px;"></textarea>
+            </div>
+            <div style="margin-bottom: 15px;">
+                <label for="reelVideo" style="display: block; margin-bottom: 5px;">Video:</label>
+                <input type="file" id="reelVideo" name="video" accept="video/*" required style="width: 100%; padding: 10px; border-radius: 8px; border: none; background: rgba(255, 255, 255, 0.2); color: white;">
+            </div>
+            <div id="videoPreview" style="margin: 15px 0; display: none;">
+                <h3 style="color: #00e6ff;">Video Preview:</h3>
+                <video id="previewVideo" controls style="width: 100%; border-radius: 8px;"></video>
+            </div>
+            <button type="submit" style="width: 100%; padding: 12px; background: #00c6ff; color: white; border: none; border-radius: 8px; font-size: 16px; cursor: pointer; transition: background 0.3s;">Upload Reel</button>
+        </form>
+    </div>
+    
+    <main id="reelsContainer">
+        <!-- Reels will be dynamically inserted here -->
+    </main>
+
+    <nav class="nav-bar">
+        <a href="dashboard.html" class="nav-item" title="Home">
+            <i class="fas fa-home nav-icon"></i>
+        </a>
+        <a href="news.html" class="nav-item" title="News Features">
+            <i class="fas fa-newspaper nav-icon"></i>
+        </a>
+        <a href="report.html" class="nav-item" title="Report a Problem">
+            <i class="fas fa-exclamation-triangle nav-icon"></i>
+        </a>
+         <a href="posts.html" class="nav-item" title="Posts">
+            <i class="fas fa-image nav-icon"></i> 
+            </a>
+        <a href="reel.html" class="nav-item" title="Reels">
+            <i class="fas fa-video nav-icon"></i>
+        </a>
+    </nav>
+
+    <script>
+        // Handle video preview
+        document.getElementById('reelVideo').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const videoPreview = document.getElementById('videoPreview');
+                const previewVideo = document.getElementById('previewVideo');
+                videoPreview.style.display = 'block';
+                previewVideo.src = URL.createObjectURL(file);
+            }
+        });
+
+        // Handle form submission
+        document.getElementById('reelUploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('reelTitle').value;
+            const author = document.getElementById('reelAuthor').value;
+            const description = document.getElementById('reelDescription').value;
+            const videoFile = document.getElementById('reelVideo').files[0];
+            
+            if (!title || !author || !description || !videoFile) {
+                alert('Please fill in all fields and select a video.');
+                return;
+            }
+            
+            // For this implementation, we'll create a simple preview of the uploaded reel
+            // In a real application, you would send this data to the server
+            const newReel = {
+                title: title,
+                author: author,
+                description: description,
+                date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                videoUrl: URL.createObjectURL(videoFile)
+            };
+            
+            // Add to the reelsData array
+            reelsData.unshift(newReel);
+            
+            // Re-render the reels
+            renderReels();
+            
+            // Reset the form
+            document.getElementById('reelUploadForm').reset();
+            document.getElementById('videoPreview').style.display = 'none';
+            
+            alert('Reel uploaded successfully!');
+        });
+
+        const reelsData = [
+            {
+                title: "Sunset Timelapse",
+                author: "Noah Davis",
+                description: "A beautiful sunset timelapse over the mountains.",
+                date: "April 9, 2024",
+                videoUrl: "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4"
+            },
+            {
+                title: "Street Art Tour",
+                author: "Sophia Martinez",
+                description: "Exploring vibrant street art in the city.",
+                date: "April 10, 2024",
+                videoUrl: "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4"
+            },
+            {
+                title: "Mountain Hiking",
+                author: "James Wilson",
+                description: "An adventurous hike through the mountains.",
+                date: "April 11, 2024",
+                videoUrl: "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4"
+            }
+        ];
+
+        const reelsContainer = document.getElementById('reelsContainer');
+
+        function createReelElement(reel) {
+            const reelEl = document.createElement('div');
+            reelEl.classList.add('reel');
+            reelEl.innerHTML = `
+                <video src="${reel.videoUrl}" controls muted playsinline></video>
+                <div class="reel-info">
+                    <div class="reel-title">${reel.title}</div>
+                    <div class="reel-author">By ${reel.author} | ${reel.date}</div>
+                    <div class="reel-description">${reel.description}</div>
+                    <div class="reel-actions">
+                        <div class="action-btn" title="Like"><i class="fas fa-heart"></i> Like</div>
+                        <div class="action-btn" title="Comment"><i class="fas fa-comment"></i> Comment</div>
+                        <div class="action-btn" title="Share"><i class="fas fa-share"></i> Share</div>
+                    </div>
+                </div>
+            `;
+            return reelEl;
+        }
+
+        function renderReels() {
+            reelsContainer.innerHTML = '';
+            reelsData.forEach(reel => {
+                const reelEl = createReelElement(reel);
+                reelsContainer.appendChild(reelEl);
+            });
+        }
+
+        renderReels();
+    </script>
+</body>
+</html>
