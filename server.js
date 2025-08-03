@@ -8,7 +8,7 @@ const multer = require('multer');
 const app = express();
 const port = 3000;
 
-//  Setup Uploads folder
+
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
 
@@ -18,7 +18,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// Middleware
+
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -36,7 +36,6 @@ app.get('/reels.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'reels.html'));
 });
 
-/* ==================== USER FORM HANDLING ==================== */
 const dataFilePath = path.join(__dirname, 'users.json');
 
 function readUserData() {
@@ -70,7 +69,6 @@ app.post('/submit-form', (req, res) => {
   res.json({ message: 'Form submitted successfully', user });
 });
 
-/* ==================== POSTS HANDLING ==================== */
 const postsFilePath = path.join(__dirname, 'posts.json');
 
 function readPostsData() {
