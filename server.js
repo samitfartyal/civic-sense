@@ -209,7 +209,7 @@ app.post('/upload-report', upload.array('photos'), (req, res) => {
   res.json({ message: 'Report submitted successfully', report: newReport });
 });
 
-/* ==================== START SERVER ==================== */
+
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
