@@ -1,12 +1,23 @@
-// Comments and Shares functionality for the website
-
 class CommentsManager {
     constructor() {
-        this.apiBase = 'http://localhost:3000';
+        // Try environment variable, then window config, then fallback
+        this.apiBase =
+            (typeof process !== 'undefined' && process.env && process.env.API_BASE_URL) ||
+            (typeof window !== 'undefined' && window.API_BASE_URL) ||
+            'http://localhost:3000';
     }
 
     // Fetch comments for a specific post/reel
     async getComments(contentType, contentId) {
+        // Parameter validation
+        if (!contentType || typeof contentType !== 'string' || !contentType.trim()) {
+            console.error('Invalid contentType');
+            return [];
+        }
+        if (!contentId || typeof contentId !== 'string' || !contentId.trim()) {
+            console.error('Invalid contentId');
+            return [];
+        }
         try {
             const response = await fetch(`${this.apiBase}/comments/${contentType}/${contentId}`);
             if (!response.ok) throw new Error('Failed to fetch comments');
@@ -19,11 +30,40 @@ class CommentsManager {
 
     // Add a new comment
     async addComment(content, author, contentType, contentId) {
+        // Input validation
+        if (!content || typeof content !== 'string' || !content.trim()) {
+            console.error('Invalid comment content');
+            return null;
+        }
+        if (!author || typeof author !== 'string' || !author.trim()) {
+            console.error('Invalid author');
+            return null;
+        }
+        if (!contentType || typeof contentType !== 'string' || !contentType.trim()) {
+            console.error('Invalid contentType');
+            return null;
+        }
+        if (!contentId || typeof contentId !== 'string' || !contentId.trim()) {
+            console.error('Invalid contentId');
+            return null;
+        }
+
+        // Get auth token (customize as needed)
+        let token = null;
+        if (typeof window !== 'undefined' && window.getAuthToken) {
+            token = window.getAuthToken();
+        } else if (typeof this.getAuthToken === 'function') {
+            token = this.getAuthToken();
+        } else if (typeof localStorage !== 'undefined' && localStorage.getItem('authToken')) {
+            token = localStorage.getItem('authToken');
+        }
+
         try {
             const response = await fetch(`${this.apiBase}/comments`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
                 },
                 body: JSON.stringify({
                     content,
@@ -32,7 +72,6 @@ class CommentsManager {
                     contentId
                 })
             });
-            
             if (!response.ok) throw new Error('Failed to add comment');
             return await response.json();
         } catch (error) {
@@ -59,7 +98,10 @@ class CommentsManager {
 
 class SharesManager {
     constructor() {
-        this.apiBase = 'http://localhost:3000';
+        this.apiBase =
+            (typeof process !== 'undefined' && process.env && process.env.API_BASE_URL) ||
+            (typeof window !== 'undefined' && window.API_BASE_URL) ||
+            'http://localhost:3000';
     }
 
     // Get share count for a specific post/reel
@@ -75,15 +117,15 @@ class SharesManager {
     }
 
     // Record a new share
-    async recordShare(userId, contentType, contentId, platform) {
+    async recordShare(contentType, contentId, platform) {
         try {
             const response = await fetch(`${this.apiBase}/shares`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.getAuthToken()}`
                 },
                 body: JSON.stringify({
-                    userId,
                     contentType,
                     contentId,
                     platform
@@ -104,18 +146,37 @@ class DOMUtils {
     static createCommentElement(comment) {
         const commentDiv = document.createElement('div');
         commentDiv.className = 'comment-item';
-        commentDiv.innerHTML = `
-            <div class="comment-header">
-                <strong>${comment.author}</strong>
-                <span class="comment-time">${new Date(comment.timestamp).toLocaleString()}</span>
-            </div>
-            <div class="comment-content">${comment.content}</div>
-            <div class="comment-actions">
-                <button class="like-btn" data-comment-id="${comment.id}">
-                    👍 ${comment.likes || 0}
-                </button>
-            </div>
-        `;
+        
+        const header = document.createElement('div');
+        header.className = 'comment-header';
+        
+        const authorStrong = document.createElement('strong');
+        authorStrong.textContent = comment.author; // Safe text assignment
+        
+        const timeSpan = document.createElement('span');
+        timeSpan.className = 'comment-time';
+        timeSpan.textContent = new Date(comment.timestamp).toLocaleString();
+        
+        header.appendChild(authorStrong);
+        header.appendChild(timeSpan);
+        
+        const contentDiv = document.createElement('div');
+        contentDiv.className = 'comment-content';
+        contentDiv.textContent = comment.content; // Safe text assignment
+        
+        const actionsDiv = document.createElement('div');
+        actionsDiv.className = 'comment-actions';
+        
+        const likeBtn = document.createElement('button');
+        likeBtn.className = 'like-btn';
+        likeBtn.dataset.commentId = comment.id;
+        likeBtn.textContent = `👍 ${comment.likes || 0}`;
+        
+        actionsDiv.appendChild(likeBtn);
+        commentDiv.appendChild(header);
+        commentDiv.appendChild(contentDiv);
+        commentDiv.appendChild(actionsDiv);
+        
         return commentDiv;
     }
 
@@ -187,15 +248,24 @@ document.addEventListener('DOMContentLoaded', () => {
             const platform = e.target.dataset.platform;
             const contentType = e.target.dataset.type;
             const contentId = e.target.dataset.id;
-            const userId = 'guest'; // In real app, get from user session
-            
+            // Retrieve userId from session/auth context
+            let userId = null;
+            if (typeof window !== 'undefined' && window.getCurrentUserId) {
+                userId = window.getCurrentUserId();
+            } else if (typeof localStorage !== 'undefined' && localStorage.getItem('userId')) {
+                userId = localStorage.getItem('userId');
+            } else if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('userId')) {
+                userId = sessionStorage.getItem('userId');
+            }
+            if (!userId) {
+                alert('You must be logged in to share.');
+                return;
+            }
             await sharesManager.recordShare(userId, contentType, contentId, platform);
             updateShareCount(contentType, contentId);
-            
             // Open share dialog
             const url = window.location.href;
             const text = `Check out this ${contentType}!`;
-            
             switch (platform) {
                 case 'facebook':
                     window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
@@ -239,90 +309,7 @@ async function updateShareCount(contentType, contentId) {
     const shareCountElement = document.querySelector(`[data-type="${contentType}"][data-id="${contentId}"] .share-count`);
     if (!shareCountElement) return;
     
-    const shareData = await new SharesManager().getShareCount(contentType, contentIt seems there is a syntax error in the comments-shares.js file at line 38. I will review and fix the syntax error in the file.
+    const shareData = await new SharesManager().getShareCount(contentType, contentId);
+    shareCountElement.textContent = `${shareData.count} shares`;
+}
 
-<edit_file>
-<path>comments-shares.js</path>
-<content>
-<<<<<<< SEARCH
-// Comments and Shares functionality for the website
-
-class CommentsManager {
-    constructor() {
-        this.apiBase = 'http://localhost:3000';
-    }
-
-    // Fetch comments for a specific post/reel
-    async getComments(contentType, contentId) {
-        try {
-            const response = await fetch(`${this.apiBase}/comments/${contentType}/${contentId}`);
-            if (!response.ok) throw new Error('Failed to fetch comments');
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-            return [];
-        }
-    }
-
-    // Add a new comment
-    async addComment(content, author, contentType, contentId) {
-        try {
-            const response = await fetch(`${this.apiBase}/comments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content,
-                    author,
-                    contentType,
-                    contentId
-                })
-            });
-            
-            if (!response.ok) throw new Error('Failed to add comment');
-            return await response.json();
-        } catch
-=======
-// Comments and Shares functionality for the website
-
-class CommentsManager {
-    constructor() {
-        this.apiBase = 'http://localhost:3000';
-    }
-
-    // Fetch comments for a specific post/reel
-    async getComments(contentType, contentId) {
-        try {
-            const response = await fetch(`${this.apiBase}/comments/${contentType}/${contentId}`);
-            if (!response.ok) throw new Error('Failed to fetch comments');
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching comments:', error);
-            return [];
-        }
-    }
-
-    // Add a new comment
-    async addComment(content, author, contentType, contentId) {
-        try {
-            const response = await fetch(`${this.apiBase}/comments`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    content,
-                    author,
-                    contentType,
-                    contentId
-                })
-            });
-            
-            if (!response.ok) throw new Error('Failed to add comment');
-            return await response.json();
-        } catch (error) {
-            console.error('Error adding comment:', error);
-            return null;
-        }
-    }
