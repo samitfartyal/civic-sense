@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Civic Sense - News Features</title>
+    <title>Civic Sense - AI News Hub</title>
     <link rel="stylesheet" href="civic.css" />
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css" />
     <style>
@@ -17,6 +17,7 @@
             align-items: center;
             padding: 10px 0;
             box-shadow: 0 -2px 5px rgba(0,0,0,0.3);
+            z-index: 1000;
         }
         .nav-item {
             color: white;
@@ -34,11 +35,180 @@
             display: block;
             margin-bottom: 5px;
         }
+        
+        /* News Styles */
+        .news-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            margin-bottom: 80px;
+        }
+        
+        .news-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .news-header h1 {
+            color: #2c3e50;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .news-header p {
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+        
+        .loading-spinner {
+            text-align: center;
+            padding: 40px;
+            font-size: 1.2em;
+            color: #3498db;
+        }
+        
+        .news-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            gap: 25px;
+            margin-top: 30px;
+        }
+        
+        .news-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .news-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0,0,0,0.15);
+        }
+        
+        .news-image {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background: linear-gradient(45deg, #3498db, #2c3e50);
+        }
+        
+        .news-content {
+            padding: 20px;
+        }
+        
+        .news-title {
+            font-size: 1.3em;
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 10px;
+            line-height: 1.3;
+        }
+        
+        .news-description {
+            color: #7f8c8d;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        
+        .news-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.9em;
+            color: #95a5a6;
+        }
+        
+        .news-source {
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .news-date {
+            font-style: italic;
+        }
+        
+        .refresh-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #3498db;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            font-size: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            transition: background 0.3s ease;
+            z-index: 1000;
+        }
+        
+        .refresh-btn:hover {
+            background: #2980b9;
+        }
+        
+        .refresh-btn:disabled {
+            background: #bdc3c7;
+            cursor: not-allowed;
+        }
+        
+        .error-message {
+            text-align: center;
+            padding: 40px;
+            color: #e74c3c;
+            font-size: 1.2em;
+        }
+        
+        .no-news {
+            text-align: center;
+            padding: 40px;
+            color: #7f8c8d;
+            font-size: 1.2em;
+        }
+        
+        @media (max-width: 768px) {
+            .news-grid {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            
+            .news-container {
+                padding: 15px;
+            }
+            
+            .news-header h1 {
+                font-size: 2em;
+            }
+        }
     </style>
 </head>
 <body>
-    <h1>News Features</h1>
-    <p>This is the News Features page. Content coming soon.</p>
+    <div class="news-container">
+        <div class="news-header">
+            <h1><i class="fas fa-newspaper"></i> AI News Hub</h1>
+            <p>Stay updated with the latest news powered by AI</p>
+            <small>Auto-refreshes every time you visit</small>
+        </div>
+        
+        <button class="refresh-btn" onclick="refreshNews()" title="Refresh News">
+            <i class="fas fa-sync-alt"></i>
+        </button>
+        
+        <div id="news-content">
+            <div class="loading-spinner">
+                <i class="fas fa-spinner fa-spin"></i> Loading latest news...
+            </div>
+        </div>
+    </div>
+
     <nav class="nav-bar">
         <a href="dashboard.html" class="nav-item" title="Home">
             <i class="fas fa-home nav-icon"></i>
@@ -56,5 +226,128 @@
             <i class="fas fa-video nav-icon"></i>
         </a>
     </nav>
+
+    <script>
+        // News API configuration
+        const NEWS_API_KEY = 'demo-key'; // Replace with your actual NewsAPI.org key
+        const NEWS_API_URL = 'https://newsapi.org/v2/top-headlines';
+        
+        // Cache for better performance
+        let newsCache = null;
+        let lastFetchTime = 0;
+        const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+        
+        // Initialize news on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            loadNews();
+        });
+        
+        // Main function to load news
+        async function loadNews() {
+            const newsContainer = document.getElementById('news-content');
+            
+            try {
+                // Show loading state
+                newsContainer.innerHTML = '<div class="loading-spinner"><i class="fas fa-spinner fa-spin"></i> Loading latest news...</div>';
+                
+                // Fetch news from your backend API
+                const response = await fetch('/api/news');
+                
+                if (!response.ok) {
+                    throw new Error('Failed to fetch news');
+                }
+                
+                const newsData = await response.json();
+                
+                if (!newsData || newsData.length === 0) {
+                    newsContainer.innerHTML = '<div class="no-news">No news articles available at the moment.</div>';
+                    return;
+                }
+                
+                displayNews(newsData);
+                
+            } catch (error) {
+                console.error('Error loading news:', error);
+                newsContainer.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load news. Please try again later.</div>';
+            }
+        }
+        
+        // Display news articles
+        function displayNews(articles) {
+            const newsContainer = document.getElementById('news-content');
+            const newsGrid = document.createElement('div');
+            newsGrid.className = 'news-grid';
+            
+            articles.forEach(article => {
+                const newsCard = createNewsCard(article);
+                newsGrid.appendChild(newsCard);
+            });
+            
+            newsContainer.innerHTML = '';
+            newsContainer.appendChild(newsGrid);
+        }
+        
+        // Create individual news card
+        function createNewsCard(article) {
+            const card = document.createElement('div');
+            card.className = 'news-card';
+            
+            const imageUrl = article.urlToImage || 'https://via.placeholder.com/300x200?text=News';
+            const title = article.title || 'No Title';
+            const description = article.description || 'No description available';
+            const source = article.source?.name || 'Unknown Source';
+            const publishedAt = article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Unknown Date';
+            const url = article.url || '#';
+            
+            card.innerHTML = `
+                <img src="${imageUrl}" alt="${title}" class="news-image" onerror="this.src='https://via.placeholder.com/300x200?text=News'">
+                <div class="news-content">
+                    <h3 class="news-title">${title}</h3>
+                    <p class="news-description">${description}</p>
+                    <div class="news-meta">
+                        <span class="news-source">${source}</span>
+                        <span class="news-date">${publishedAt}</span>
+                    </div>
+                </div>
+            `;
+            
+            // Add click handler to open article in new tab
+            card.addEventListener('click', () => {
+                if (url !== '#') {
+                    window.open(url, '_blank');
+                }
+            });
+            
+            return card;
+        }
+        
+        // Refresh news function
+        async function refreshNews() {
+            const refreshBtn = document.querySelector('.refresh-btn');
+            const icon = refreshBtn.querySelector('i');
+            
+            // Disable button and show loading
+            refreshBtn.disabled = true;
+            icon.className = 'fas fa-spinner fa-spin';
+            
+            // Clear cache and reload
+            newsCache = null;
+            lastFetchTime = 0;
+            
+            await loadNews();
+            
+            // Re-enable button
+            refreshBtn.disabled = false;
+            icon.className = 'fas fa-sync-alt';
+        }
+        
+        // Auto-refresh news every 30 seconds (optional)
+        setInterval(() => {
+            const now = Date.now();
+            if (now - lastFetchTime > 30000) { // 30 seconds
+                loadNews();
+            }
+        }, 30000);
+    </script>
 </body>
 </html>
