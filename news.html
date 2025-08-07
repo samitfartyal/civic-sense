@@ -266,12 +266,14 @@
                 
                 displayNews(newsData);
                 
+                // Mark successful fetch time for auto-refresh throttling
+                lastFetchTime = Date.now();
+                
             } catch (error) {
                 console.error('Error loading news:', error);
                 newsContainer.innerHTML = '<div class="error-message"><i class="fas fa-exclamation-triangle"></i> Failed to load news. Please try again later.</div>';
             }
-        }
-        
+        }        
         // Display news articles
         function displayNews(articles) {
             const newsContainer = document.getElementById('news-content');
@@ -299,18 +301,37 @@
             const publishedAt = article.publishedAt ? new Date(article.publishedAt).toLocaleDateString() : 'Unknown Date';
             const url = article.url || '#';
             
-            card.innerHTML = `
-                <img src="${imageUrl}" alt="${title}" class="news-image" onerror="this.src='https://via.placeholder.com/300x200?text=News'">
-                <div class="news-content">
-                    <h3 class="news-title">${title}</h3>
-                    <p class="news-description">${description}</p>
-                    <div class="news-meta">
-                        <span class="news-source">${source}</span>
-                        <span class="news-date">${publishedAt}</span>
-                    </div>
-                </div>
-            `;
-            
+            const img = document.createElement('img');
+            img.src = imageUrl;
+            img.alt = title;
+            img.className = 'news-image';
+            img.onerror = () => { img.src = 'https://via.placeholder.com/300x200?text=News'; };
+
+            const content = document.createElement('div');
+            content.className = 'news-content';
+
+            const h3 = document.createElement('h3');
+            h3.className = 'news-title';
+            h3.textContent = title;
+
+            const p = document.createElement('p');
+            p.className = 'news-description';
+            p.textContent = description;
+
+            const meta = document.createElement('div');
+            meta.className = 'news-meta';
+
+            const spanSource = document.createElement('span');
+            spanSource.className = 'news-source';
+            spanSource.textContent = source;
+
+            const spanDate = document.createElement('span');
+            spanDate.className = 'news-date';
+            spanDate.textContent = publishedAt;
+
+            meta.append(spanSource, spanDate);
+            content.append(h3, p, meta);
+            card.append(img, content);            
             // Add click handler to open article in new tab
             card.addEventListener('click', () => {
                 if (url !== '#') {
