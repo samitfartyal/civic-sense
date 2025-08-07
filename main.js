@@ -31,7 +31,7 @@
 
                     if (response.ok) {
                         console.log('Form submitted successfully, redirecting...');
-                        window.location.href = 'dashboard.html';
+                        window.location.href = '/civic-sense/dashboard.html';
                     } else {
                         throw new Error('Failed to submit form');
                     }
