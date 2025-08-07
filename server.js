@@ -8,6 +8,7 @@ const multer = require('multer');
 const app = express();
 const port = 3000;
 
+
 //  Setup Uploads folder
 const uploadDir = path.join(__dirname, 'uploads');
 if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
@@ -17,6 +18,19 @@ const storage = multer.diskStorage({
   filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
 });
 const upload = multer({ storage });
+
+// Multer for /reports: max 10 files, 5MB each, only images
+const reportsUpload = multer({
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024, files: 10 },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype && file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+});
 
 // Middleware
 app.use(cors());
@@ -118,16 +132,41 @@ app.post('/posts', upload.single('image'), (req, res) => {
   res.json({ message: 'Post added successfully', post: newPost });
 });
 
-// --- Authentication and Locking for Like/Unlike a post ---
-// Dummy authentication middleware (replace with real one as needed)
+
+// --- JWT Authentication and Rate Limiting Middleware ---
+const jwt = require('jsonwebtoken');
+const rateLimit = require('express-rate-limit');
+const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // Set securely in production
+
+// Rate limiting middleware (100 requests per 15 min per IP)
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 100,
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+app.use(limiter);
+
+// JWT authentication middleware
 function authenticate(req, res, next) {
-  // Example: userId is sent in req.header('x-user-id')
-  const userId = req.header('x-user-id');
-  if (!userId) {
-    return res.status(401).json({ error: 'Authentication required' });
+  const authHeader = req.header('Authorization');
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    return res.status(401).json({ error: 'Authorization header missing or malformed' });
   }
-  req.userId = userId;
-  next();
+  const token = authHeader.replace('Bearer ', '');
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    // Sanitize userId (allow only alphanumeric, email, or phone)
+    let userId = payload.userId;
+    if (typeof userId !== 'string' || !/^[\w@.\-+]+$/.test(userId)) {
+      return res.status(400).json({ error: 'Invalid userId in token' });
+    }
+    req.userId = userId;
+    // Optionally, attach session info if using sessions
+    next();
+  } catch (err) {
+    return res.status(401).json({ error: 'Invalid or expired token' });
+  }
 }
 
 // Validate userId exists in users.json
@@ -141,15 +180,44 @@ function validateUserId(userId) {
 }
 
 // Simple file lock using a lock file (not perfect, but helps for local dev)
-function acquireLock(lockPath, timeout = 5000) {
+function acquireLock(lockPath, timeout = 5000, staleMs = 10000) {
   const start = Date.now();
-  while (fs.existsSync(lockPath)) {
-    if (Date.now() - start > timeout) throw new Error('Lock timeout');
+  while (true) {
+    try {
+      // Try to create the lock file exclusively
+      const fd = fs.openSync(lockPath, 'wx');
+      fs.writeSync(fd, String(Date.now()));
+      fs.closeSync(fd);
+      return;
+    } catch (err) {
+      // If file exists, check if it's stale
+      if (err.code === 'EEXIST') {
+        try {
+          const stat = fs.statSync(lockPath);
+          const mtime = stat.mtimeMs;
+          if (Date.now() - mtime > staleMs) {
+            // Stale lock, remove it
+            fs.unlinkSync(lockPath);
+            continue;
+          }
+        } catch (e) {
+          // Ignore stat errors, just retry
+        }
+        if (Date.now() - start > timeout) throw new Error('Lock timeout');
+        // Wait 100ms before retrying
+        Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 100);
+      } else {
+        throw err;
+      }
+    }
   }
-  fs.writeFileSync(lockPath, 'locked');
 }
 function releaseLock(lockPath) {
-  if (fs.existsSync(lockPath)) fs.unlinkSync(lockPath);
+  try {
+    if (fs.existsSync(lockPath)) fs.unlinkSync(lockPath);
+  } catch (e) {
+    // Ignore errors
+  }
 }
 
 app.put('/posts/:id/like', authenticate, (req, res) => {
@@ -162,13 +230,15 @@ app.put('/posts/:id/like', authenticate, (req, res) => {
   }
 
   const lockPath = path.join(__dirname, 'posts.json.lock');
+  let locked = false;
   try {
     acquireLock(lockPath);
+    locked = true;
     const posts = readPostsData();
     const postIndex = posts.findIndex(post => post.id === id);
     if (postIndex === -1) {
-      releaseLock(lockPath);
-      return res.status(404).json({ error: 'Post not found' });
+      res.status(404).json({ error: 'Post not found' });
+      return;
     }
     const post = posts[postIndex];
     if (!post.likedBy) post.likedBy = [];
@@ -181,15 +251,15 @@ app.put('/posts/:id/like', authenticate, (req, res) => {
       post.likedBy.splice(userLikedIndex, 1);
     }
     writePostsData(posts);
-    releaseLock(lockPath);
     res.json({
       message: userLikedIndex === -1 ? 'Post liked' : 'Post unliked',
       likes: post.likes,
       liked: userLikedIndex === -1
     });
   } catch (err) {
-    releaseLock(lockPath);
     res.status(500).json({ error: 'Could not process like/unlike. Try again.' });
+  } finally {
+    if (locked) releaseLock(lockPath);
   }
 });
 
@@ -301,7 +371,7 @@ async function writeCommentsData(data) {
   }
 }
 
-app.post('/reports', upload.array('photos', 10), (req, res) => {
+app.post('/reports', reportsUpload.array('photos', 10), (req, res) => {
   const { title, description, contactName, contactEmail } = req.body;
   if (!title || !description || !contactName || !contactEmail) {
     return res.status(400).json({ error: 'All report fields are required' });
@@ -381,9 +451,108 @@ app.post('/shares', (req, res) => {
   res.json({ message: 'Share recorded successfully', share: newShare });
 });
 
+/* ==================== NEWS API HANDLING ==================== */
+const newsFilePath = path.join(__dirname, 'news.json');
+
+function readNewsData() {
+  try {
+    if (!fs.existsSync(newsFilePath)) fs.writeFileSync(newsFilePath, JSON.stringify([]));
+    const data = fs.readFileSync(newsFilePath);
+    return JSON.parse(data);
+  } catch (err) {
+    console.error('Error reading news data:', err);
+    return [];
+  }
+}
+
+function writeNewsData(data) {
+  try {
+    fs.writeFileSync(newsFilePath, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('Error writing news data:', err);
+  }
+}
+
+// Fetch news from external API (NewsAPI.org as example)
+async function fetchNewsFromAPI() {
+  try {
+    // Using NewsAPI.org free tier - you can replace with any news API
+    const apiKey = 'demo-key'; // Replace with actual API key
+    const response = await fetch(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${apiKey}`);
+    
+    if (!response.ok) {
+      // Fallback to mock data if API fails
+      return [
+        {
+          id: Date.now(),
+          title: "Local Community Updates",
+          description: "Stay informed with the latest community news and updates.",
+          url: "#",
+          urlToImage: "https://via.placeholder.com/300x200?text=Community+News",
+          publishedAt: new Date().toISOString(),
+          source: { name: "Civic Sense" }
+        }
+      ];
+    }
+    
+    const data = await response.json();
+    return data.articles || [];
+  } catch (error) {
+    console.error('Error fetching news:', error);
+    return [
+      {
+        id: Date.now(),
+        title: "Local Community Updates",
+        description: "Stay informed with the latest community news and updates.",
+        url: "#",
+        urlToImage: "https://via.placeholder.com/300x200?text=Community+News",
+        publishedAt: new Date().toISOString(),
+        source: { name: "Civic Sense" }
+      }
+    ];
+  }
+}
+
+// News endpoints
+app.get('/api/news', async (req, res) => {
+  try {
+    const news = await fetchNewsFromAPI();
+    res.json(news);
+  } catch (error) {
+    console.error('Error serving news:', error);
+    res.status(500).json({ error: 'Failed to fetch news' });
+  }
+});
+
+app.get('/api/news/local', (req, res) => {
+  const news = readNewsData();
+  res.json(news);
+});
+
+app.post('/api/news/local', (req, res) => {
+  const { title, description, url, imageUrl } = req.body;
+  if (!title || !description) {
+    return res.status(400).json({ error: 'Title and description are required' });
+  }
+
+  const news = readNewsData();
+  const newArticle = {
+    id: Date.now(),
+    title,
+    description,
+    url: url || "#",
+    urlToImage: imageUrl || "https://via.placeholder.com/300x200?text=News",
+    publishedAt: new Date().toISOString(),
+    source: { name: "Local Contributor" }
+  };
+
+  news.unshift(newArticle);
+  writeNewsData(news);
+  res.json({ message: 'News added successfully', article: newArticle });
+});
+
 /* ==================== START SERVER ==================== */
 app.listen(port, () => {
   console.log(`Server running on http://localhost:${port}`);
 });
-
 
