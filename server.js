@@ -1,4 +1,8 @@
 const express = require('express');
+const fetch = require('node-fetch');
+const dotenv = require('dotenv').config();
+const { OpenAI } = require('openai');
+const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fs = require('fs');
@@ -136,7 +140,12 @@ app.post('/posts', upload.single('image'), (req, res) => {
 // --- JWT Authentication and Rate Limiting Middleware ---
 const jwt = require('jsonwebtoken');
 const rateLimit = require('express-rate-limit');
-const JWT_SECRET = process.env.JWT_SECRET || 'your_jwt_secret'; // Set securely in production
+
+const JWT_SECRET = process.env.JWT_SECRET;
+if (!JWT_SECRET) {
+  console.error('FATAL: JWT_SECRET environment variable is not set. Set it securely in production.');
+  process.exit(1);
+}
 
 // Rate limiting middleware (100 requests per 15 min per IP)
 const limiter = rateLimit({
@@ -473,45 +482,6 @@ function writeNewsData(data) {
   }
 }
 
-// Fetch news from external API (NewsAPI.org as example)
-async function fetchNewsFromAPI() {
-  try {
-    // Using NewsAPI.org free tier - you can replace with any news API
-    const apiKey = 'demo-key'; // Replace with actual API key
-    const response = await fetch(`https://newsapi.org/v2/top-headlines?country=us&apiKey=${apiKey}`);
-    
-    if (!response.ok) {
-      // Fallback to mock data if API fails
-      return [
-        {
-          id: Date.now(),
-          title: "Local Community Updates",
-          description: "Stay informed with the latest community news and updates.",
-          url: "#",
-          urlToImage: "https://via.placeholder.com/300x200?text=Community+News",
-          publishedAt: new Date().toISOString(),
-          source: { name: "Civic Sense" }
-        }
-      ];
-    }
-    
-    const data = await response.json();
-    return data.articles || [];
-  } catch (error) {
-    console.error('Error fetching news:', error);
-    return [
-      {
-        id: Date.now(),
-        title: "Local Community Updates",
-        description: "Stay informed with the latest community news and updates.",
-        url: "#",
-        urlToImage: "https://via.placeholder.com/300x200?text=Community+News",
-        publishedAt: new Date().toISOString(),
-        source: { name: "Civic Sense" }
-      }
-    ];
-  }
-}
 
 // News endpoints
 app.get('/api/news', async (req, res) => {
@@ -549,6 +519,59 @@ app.post('/api/news/local', (req, res) => {
   news.unshift(newArticle);
   writeNewsData(news);
   res.json({ message: 'News added successfully', article: newArticle });
+});
+
+
+// === AI-Powered News Handling ===
+async function summarizeWithAI(text) {
+  try {
+    const response = await openai.chat.completions.create({
+      model: 'gpt-4',
+      messages: [
+        { role: 'system', content: 'You are a news summarizer.' },
+        { role: 'user', content: `Summarize this news article:\n\n${text}` },
+      ],
+      max_tokens: 200,
+    });
+    return response.choices[0].message.content.trim();
+  } catch (err) {
+    console.error('Error summarizing with AI:', err);
+    return text;
+  }
+}
+
+async function fetchNewsFromAPI() {
+  try {
+    const apiKey = process.env.NEWS_API_KEY;
+    const response = await fetch(`https://newsapi.org/v2/top-headlines?country=in&apiKey=${apiKey}`);
+
+    if (!response.ok) throw new Error('Failed to fetch external news');
+
+    const data = await response.json();
+    const summarizedArticles = await Promise.all(
+      data.articles.map(async (article) => {
+        const summary = await summarizeWithAI(article.description || article.content || article.title);
+        return {
+          ...article,
+          description: summary,
+        };
+      })
+    );
+    return summarizedArticles;
+  } catch (error) {
+    console.error('Using fallback local news:', error);
+    return readNewsData();
+  }
+}
+
+// AI News API endpoint
+app.get('/api/news/ai', async (req, res) => {
+  try {
+    const news = await fetchNewsFromAPI();
+    res.json(news);
+  } catch (error) {
+    res.status(500).json({ error: 'Failed to fetch AI-powered news' });
+  }
 });
 
 /* ==================== START SERVER ==================== */
