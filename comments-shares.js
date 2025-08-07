@@ -1,10 +1,30 @@
+// Utility to get current userId from window, localStorage, or sessionStorage
+function getCurrentUserId() {
+    if (typeof window !== 'undefined' && window.getCurrentUserId) {
+        return window.getCurrentUserId();
+    } else if (typeof localStorage !== 'undefined' && localStorage.getItem('userId')) {
+        return localStorage.getItem('userId');
+    } else if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('userId')) {
+        return sessionStorage.getItem('userId');
+    }
+    return null;
+}
+
+// Utility to get API base URL from env, window, or fallback
+function getApiBaseUrl() {
+    return (
+        (typeof process !== 'undefined' && process.env && process.env.API_BASE_URL) ||
+        (typeof window !== 'undefined' && window.API_BASE_URL) ||
+        (typeof window !== 'undefined' && window.FALLBACK_API_BASE_URL) ||
+        '/'
+    );
+}
+
+// Comments and Shares functionality for the website
+
 class CommentsManager {
     constructor() {
-        // Try environment variable, then window config, then fallback
-        this.apiBase =
-            (typeof process !== 'undefined' && process.env && process.env.API_BASE_URL) ||
-            (typeof window !== 'undefined' && window.API_BASE_URL) ||
-            'http://localhost:3000';
+        this.apiBase = getApiBaseUrl();
     }
 
     // Fetch comments for a specific post/reel
@@ -82,11 +102,22 @@ class CommentsManager {
 
     // Like a comment
     async likeComment(commentId) {
+        // Get auth token (reuse logic from addComment)
+        let token = null;
+        if (typeof window !== 'undefined' && window.getAuthToken) {
+            token = window.getAuthToken();
+        } else if (typeof this.getAuthToken === 'function') {
+            token = this.getAuthToken();
+        } else if (typeof localStorage !== 'undefined' && localStorage.getItem('authToken')) {
+            token = localStorage.getItem('authToken');
+        }
         try {
             const response = await fetch(`${this.apiBase}/comments/${commentId}/like`, {
-                method: 'PUT'
+                method: 'PUT',
+                headers: {
+                    ...(token ? { 'Authorization': `Bearer ${token}` } : {})
+                }
             });
-            
             if (!response.ok) throw new Error('Failed to like comment');
             return await response.json();
         } catch (error) {
@@ -94,30 +125,9 @@ class CommentsManager {
             return null;
         }
     }
-}
-
-class SharesManager {
-    constructor() {
-        this.apiBase =
-            (typeof process !== 'undefined' && process.env && process.env.API_BASE_URL) ||
-            (typeof window !== 'undefined' && window.API_BASE_URL) ||
-            'http://localhost:3000';
-    }
-
-    // Get share count for a specific post/reel
-    async getShareCount(contentType, contentId) {
-        try {
-            const response = await fetch(`${this.apiBase}/shares/${contentType}/${contentId}`);
-            if (!response.ok) throw new Error('Failed to fetch share count');
-            return await response.json();
-        } catch (error) {
-            console.error('Error fetching share count:', error);
-            return { count: 0, shares: [] };
-        }
-    }
 
     // Record a new share
-    async recordShare(contentType, contentId, platform) {
+    async recordShare(userId, contentType, contentId, platform) {
         try {
             const response = await fetch(`${this.apiBase}/shares`, {
                 method: 'POST',
@@ -126,18 +136,29 @@ class SharesManager {
                     'Authorization': `Bearer ${this.getAuthToken()}`
                 },
                 body: JSON.stringify({
+                    userId,
                     contentType,
                     contentId,
                     platform
                 })
             });
-            
             if (!response.ok) throw new Error('Failed to record share');
             return await response.json();
         } catch (error) {
             console.error('Error recording share:', error);
             return null;
         }
+    }
+
+    getAuthToken() {
+        if (typeof window !== 'undefined' && window.getAuthToken) {
+            return window.getAuthToken();
+        } else if (typeof localStorage !== 'undefined' && localStorage.getItem('authToken')) {
+            return localStorage.getItem('authToken');
+        } else if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('authToken')) {
+            return sessionStorage.getItem('authToken');
+        }
+        return null;
     }
 }
 
@@ -183,32 +204,58 @@ class DOMUtils {
     static createCommentForm(contentType, contentId) {
         const formDiv = document.createElement('div');
         formDiv.className = 'comment-form';
-        formDiv.innerHTML = `
-            <h4>Add a Comment</h4>
-            <textarea placeholder="Write your comment..." class="comment-textarea" rows="3"></textarea>
-            <input type="text" placeholder="Your name" class="comment-author" />
-            <button class="submit-comment-btn" data-type="${contentType}" data-id="${contentId}">
-                Post Comment
-            </button>
-        `;
+
+        const heading = document.createElement('h4');
+        heading.textContent = 'Add a Comment';
+        formDiv.appendChild(heading);
+
+        const textarea = document.createElement('textarea');
+        textarea.placeholder = 'Write your comment...';
+        textarea.className = 'comment-textarea';
+        textarea.rows = 3;
+        formDiv.appendChild(textarea);
+
+        const input = document.createElement('input');
+        input.type = 'text';
+        input.placeholder = 'Your name';
+        input.className = 'comment-author';
+        formDiv.appendChild(input);
+
+        const button = document.createElement('button');
+        button.className = 'submit-comment-btn';
+        button.textContent = 'Post Comment';
+        button.dataset.type = contentType;
+        button.dataset.id = contentId;
+        formDiv.appendChild(button);
+
         return formDiv;
     }
 
     static createShareButtons(contentType, contentId) {
         const shareDiv = document.createElement('div');
         shareDiv.className = 'share-buttons';
-        shareDiv.innerHTML = `
-            <button class="share-btn" data-platform="facebook" data-type="${contentType}" data-id="${contentId}">
-                Share on Facebook
-            </button>
-            <button class="share-btn" data-platform="twitter" data-type="${contentType}" data-id="${contentId}">
-                Share on Twitter
-            </button>
-            <button class="share-btn" data-platform="whatsapp" data-type="${contentType}" data-id="${contentId}">
-                Share on WhatsApp
-            </button>
-            <span class="share-count">0 shares</span>
-        `;
+
+        const platforms = [
+            { name: 'facebook', label: 'Share on Facebook' },
+            { name: 'twitter', label: 'Share on Twitter' },
+            { name: 'whatsapp', label: 'Share on WhatsApp' }
+        ];
+
+        platforms.forEach(platform => {
+            const btn = document.createElement('button');
+            btn.className = 'share-btn';
+            btn.dataset.platform = platform.name;
+            btn.dataset.type = contentType;
+            btn.dataset.id = contentId;
+            btn.textContent = platform.label;
+            shareDiv.appendChild(btn);
+        });
+
+        const shareCount = document.createElement('span');
+        shareCount.className = 'share-count';
+        shareCount.textContent = '0 shares';
+        shareDiv.appendChild(shareCount);
+
         return shareDiv;
     }
 }
@@ -237,7 +284,7 @@ document.addEventListener('DOMContentLoaded', () => {
             if (result) {
                 form.querySelector('.comment-textarea').value = '';
                 form.querySelector('.comment-author').value = '';
-                loadComments(contentType, contentId);
+                loadComments(contentType, contentId, commentsManager);
             }
         }
     });
@@ -249,20 +296,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const contentType = e.target.dataset.type;
             const contentId = e.target.dataset.id;
             // Retrieve userId from session/auth context
-            let userId = null;
-            if (typeof window !== 'undefined' && window.getCurrentUserId) {
-                userId = window.getCurrentUserId();
-            } else if (typeof localStorage !== 'undefined' && localStorage.getItem('userId')) {
-                userId = localStorage.getItem('userId');
-            } else if (typeof sessionStorage !== 'undefined' && sessionStorage.getItem('userId')) {
-                userId = sessionStorage.getItem('userId');
-            }
+            const userId = getCurrentUserId();
             if (!userId) {
                 alert('You must be logged in to share.');
                 return;
             }
             await sharesManager.recordShare(userId, contentType, contentId, platform);
-            updateShareCount(contentType, contentId);
+            updateShareCount(contentType, contentId, sharesManager);
             // Open share dialog
             const url = window.location.href;
             const text = `Check out this ${contentType}!`;
@@ -285,31 +325,30 @@ document.addEventListener('DOMContentLoaded', () => {
         if (e.target.classList.contains('like-btn')) {
             const commentId = e.target.dataset.commentId;
             await commentsManager.likeComment(commentId);
-            const contentType = e.target.closest('.comments-section').dataset.type;
-            const contentId = e.target.closest('.comments-section').dataset.id;
-            loadComments(contentType, contentId);
+            const section = e.target.closest('.comments-section');
+            if (section) {
+                const contentType = section.dataset.type;
+                const contentId = section.dataset.id;
+                loadComments(contentType, contentId, commentsManager);
+            }
         }
     });
 });
 
 // Utility functions for loading content
-async function loadComments(contentType, contentId) {
+async function loadComments(contentType, contentId, commentsManager) {
     const commentsContainer = document.querySelector(`[data-type="${contentType}"][data-id="${contentId}"] .comments-list`);
     if (!commentsContainer) return;
-    
-    const comments = await new CommentsManager().getComments(contentType, contentId);
+    const comments = await commentsManager.getComments(contentType, contentId);
     commentsContainer.innerHTML = '';
-    
     comments.forEach(comment => {
         commentsContainer.appendChild(DOMUtils.createCommentElement(comment));
     });
 }
 
-async function updateShareCount(contentType, contentId) {
+async function updateShareCount(contentType, contentId, sharesManager) {
     const shareCountElement = document.querySelector(`[data-type="${contentType}"][data-id="${contentId}"] .share-count`);
     if (!shareCountElement) return;
-    
-    const shareData = await new SharesManager().getShareCount(contentType, contentId);
+    const shareData = await sharesManager.getShareCount(contentType, contentId);
     shareCountElement.textContent = `${shareData.count} shares`;
 }
-
