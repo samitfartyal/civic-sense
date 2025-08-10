@@ -1,6 +1,7 @@
 const dotenv = require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
+
 const { OpenAI } = require('openai');
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 const bodyParser = require('body-parser');
@@ -146,6 +147,14 @@ if (!JWT_SECRET) {
   console.error('FATAL: JWT_SECRET environment variable is not set. Set it securely in production.');
   process.exit(1);
 }
+
+// Validate other critical environment variables
+const requiredEnvVars = ['OPENAI_API_KEY', 'NEWS_API_KEY'];
+requiredEnvVars.forEach(envVar => {
+  if (!process.env[envVar]) {
+    console.warn(`WARNING: ${envVar} environment variable is not set. Some features may not work.`);
+  }
+});
 
 // Rate limiting middleware (100 requests per 15 min per IP)
 const limiter = rateLimit({
