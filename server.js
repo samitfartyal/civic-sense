@@ -104,16 +104,110 @@ app.post('/posts', upload.single('image'), (req, res) => {
   }
   const posts = readPostsData();
   const newPost = { 
-    title, 
+    id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,    title, 
     excerpt, 
     author, 
     date,
-    imageUrl: req.file ? `/uploads/${req.file.filename}` : null
+    imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
+    likes: 0,
+    likedBy: []
   };
   posts.push(newPost);
   writePostsData(posts);
   console.log('New post added:', newPost);
   res.json({ message: 'Post added successfully', post: newPost });
+});
+
+// --- Authentication and Locking for Like/Unlike a post ---
+// Dummy authentication middleware (replace with real one as needed)
+function authenticate(req, res, next) {
+  // Example: userId is sent in req.header('x-user-id')
+  const userId = req.header('x-user-id');
+  if (!userId) {
+    return res.status(401).json({ error: 'Authentication required' });
+  }
+  req.userId = userId;
+  next();
+}
+
+// Validate userId exists in users.json
+function validateUserId(userId) {
+  try {
+    const users = readUserData();
+    return users.some(u => u.email === userId || u.phone === userId || u.name === userId);
+  } catch {
+    return false;
+  }
+}
+
+// Simple file lock using a lock file (not perfect, but helps for local dev)
+function acquireLock(lockPath, timeout = 5000) {
+  const start = Date.now();
+  while (fs.existsSync(lockPath)) {
+    if (Date.now() - start > timeout) throw new Error('Lock timeout');
+  }
+  fs.writeFileSync(lockPath, 'locked');
+}
+function releaseLock(lockPath) {
+  if (fs.existsSync(lockPath)) fs.unlinkSync(lockPath);
+}
+
+app.put('/posts/:id/like', authenticate, (req, res) => {
+  const { id } = req.params;
+  const userId = req.userId;
+
+  // Validate userId
+  if (!validateUserId(userId)) {
+    return res.status(403).json({ error: 'Invalid or unauthorized userId' });
+  }
+
+  const lockPath = path.join(__dirname, 'posts.json.lock');
+  try {
+    acquireLock(lockPath);
+    const posts = readPostsData();
+    const postIndex = posts.findIndex(post => post.id === id);
+    if (postIndex === -1) {
+      releaseLock(lockPath);
+      return res.status(404).json({ error: 'Post not found' });
+    }
+    const post = posts[postIndex];
+    if (!post.likedBy) post.likedBy = [];
+    const userLikedIndex = post.likedBy.indexOf(userId);
+    if (userLikedIndex === -1) {
+      post.likes += 1;
+      post.likedBy.push(userId);
+    } else {
+      post.likes -= 1;
+      post.likedBy.splice(userLikedIndex, 1);
+    }
+    writePostsData(posts);
+    releaseLock(lockPath);
+    res.json({
+      message: userLikedIndex === -1 ? 'Post liked' : 'Post unliked',
+      likes: post.likes,
+      liked: userLikedIndex === -1
+    });
+  } catch (err) {
+    releaseLock(lockPath);
+    res.status(500).json({ error: 'Could not process like/unlike. Try again.' });
+  }
+});
+
+// Get like status for a post
+app.get('/posts/:id/like-status', (req, res) => {
+  const { id } = req.params;
+  const { userId } = req.query;
+  
+  const posts = readPostsData();
+  const post = posts.find(post => post.id === id);
+  
+  if (!post) {
+    return res.status(404).json({ error: 'Post not found' });
+  }
+  
+  const liked = post.likedBy && post.likedBy.includes(userId);
+  
+  res.json({ likes: post.likes || 0, liked });
 });
 
 /* ==================== REELS HANDLING ==================== */
@@ -177,25 +271,26 @@ function readReportsData() {
 }
 
 function writeReportsData(data) {
+async function readCommentsData() {
   try {
-    fs.writeFileSync(reportsFilePath, JSON.stringify(data, null, 2));
+    if (!fs.existsSync(commentsFilePath)) {
+      await fs.promises.writeFile(commentsFilePath, JSON.stringify([]));
+    }
+    const data = await fs.promises.readFile(commentsFilePath);
+    return JSON.parse(data);
   } catch (err) {
-    console.error('Error writing reports data:', err);
+    console.error('Error reading comments data:', err);
+    return [];
   }
 }
 
-//  Endpoint for reports with photos
-app.post('/upload-report', upload.array('photos'), (req, res) => {
-  const { reportType, description, contactName, contactEmail } = req.body;
-
-  if (!reportType || !description || !contactName || !contactEmail) {
-    return res.status(400).json({ error: 'All fields are required' });
+async function writeCommentsData(data) {
+  try {
+    await fs.promises.writeFile(commentsFilePath, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('Error writing comments data:', err);
   }
-
-  const reports = readReportsData();
-  const newReport = {
-    reportType,
-    description,
+}    description,
     contactName,
     contactEmail,
     photos: req.files.map(file => `/uploads/${file.filename}`),
@@ -207,6 +302,60 @@ app.post('/upload-report', upload.array('photos'), (req, res) => {
 
   console.log('New report received:', newReport);
   res.json({ message: 'Report submitted successfully', report: newReport });
+const sharesFilePath = path.join(__dirname, 'shares.json');
+
+function readSharesData() {
+  try {
+    if (!fs.existsSync(sharesFilePath)) fs.writeFileSync(sharesFilePath, JSON.stringify([]));
+    const data = fs.readFileSync(sharesFilePath);
+    return JSON.parse(data);
+  } catch (err) {
+    console.error('Error reading shares data:', err);
+    return [];
+  }
+}
+
+function writeSharesData(data) {
+  try {
+    fs.writeFileSync(sharesFilePath, JSON.stringify(data, null, 2));
+  } catch (err) {
+    console.error('Error writing shares data:', err);
+  }
+}
+
+// Get share count for a specific post/reel
+app.get('/shares/:type/:id', (req, res) => {
+  const { type, id } = req.params;
+  const shares = readSharesData();
+  const filteredShares = shares.filter(share => 
+    share.contentType === type && share.contentId === id
+  );
+  res.json({ count: filteredShares.length, shares: filteredShares });
+});
+
+// Record a new share
+app.post('/shares', (req, res) => {
+  const { userId, contentType, contentId, platform } = req.body;
+  
+  if (!userId || !contentType || !contentId || !platform) {
+    return res.status(400).json({ error: 'All share fields are required' });
+  }
+
+  const shares = readSharesData();
+  const newShare = {
+    id: Date.now().toString(),
+    userId,
+    contentType,
+    contentId,
+    platform,
+    timestamp: new Date()
+  };
+
+  shares.push(newShare);
+  writeSharesData(shares);
+
+  console.log('New share recorded:', newShare);
+  res.json({ message: 'Share recorded successfully', share: newShare });
 });
 
 /* ==================== START SERVER ==================== */
