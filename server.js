@@ -1,53 +1,41 @@
 const dotenv = require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
-  
-const OpenAI = require('openai');
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY
-});
+
+let openai = null;
+if (process.env.OPENAI_API_KEY) {
+  const OpenAI = require('openai');
+  openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+  });
+}
 
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fs = require('fs');
 const path = require('path');
-const multer = require('multer');
 
 const app = express();
-const port = 3000;
-
-
-//  Setup Uploads folder
-const uploadDir = path.join(__dirname, 'uploads');
-if (!fs.existsSync(uploadDir)) fs.mkdirSync(uploadDir);
-
-const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, uploadDir),
-  filename: (req, file, cb) => cb(null, Date.now() + '-' + file.originalname)
-});
-const upload = multer({ storage });
-
-// Multer for /reports: max 10 files, 5MB each, only images
-const reportsUpload = multer({
-  storage,
-  limits: { fileSize: 5 * 1024 * 1024, files: 10 },
-  fileFilter: (req, file, cb) => {
-    if (file.mimetype && file.mimetype.startsWith('image/')) {
-      cb(null, true);
-    } else {
-      cb(new Error('Only image files are allowed!'), false);
-    }
-  }
-});
+const port = process.env.PORT || 3000;
 
 // Middleware
 app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//  Serve static files and uploaded images
+//  Serve static files
 app.use(express.static(__dirname));
-app.use('/uploads', express.static(uploadDir));
+
+// In-memory storage for serverless (Vercel doesn't persist files)
+const inMemoryData = {
+  users: [],
+  posts: [],
+  reports: [],
+  reels: [],
+  shares: [],
+  comments: [],
+  news: []
+};
 
 // Explicit routes to serve posts.html and reel.html
 app.get('/posts.html', (req, res) => {
@@ -59,20 +47,22 @@ app.get('/reels.html', (req, res) => {
 });
 
 /* ==================== USER FORM HANDLING ==================== */
-const dataFilePath = path.join(__dirname, 'users.json');
-
 function readUserData() {
   try {
-    if (!fs.existsSync(dataFilePath)) fs.writeFileSync(dataFilePath, JSON.stringify([]));
-    const data = fs.readFileSync(dataFilePath);
-    return JSON.parse(data);
+    const dataFilePath = path.join(__dirname, 'users.json');
+    if (fs.existsSync(dataFilePath)) {
+      const data = fs.readFileSync(dataFilePath);
+      return JSON.parse(data);
+    }
   } catch (err) {
     console.error('Error reading user data:', err);
-    return [];
   }
+  return inMemoryData.users;
 }
 function writeUserData(data) {
+  inMemoryData.users = data;
   try {
+    const dataFilePath = path.join(__dirname, 'users.json');
     fs.writeFileSync(dataFilePath, JSON.stringify(data, null, 2));
   } catch (err) {
     console.error('Error writing user data:', err);
@@ -93,21 +83,23 @@ app.post('/submit-form', (req, res) => {
 });
 
 /* ==================== POSTS HANDLING ==================== */
-const postsFilePath = path.join(__dirname, 'posts.json');
-
 function readPostsData() {
   try {
-    if (!fs.existsSync(postsFilePath)) fs.writeFileSync(postsFilePath, JSON.stringify([]));
-    const data = fs.readFileSync(postsFilePath);
-    return JSON.parse(data);
+    const postsFilePath = path.join(__dirname, 'posts.json');
+    if (fs.existsSync(postsFilePath)) {
+      const data = fs.readFileSync(postsFilePath);
+      return JSON.parse(data);
+    }
   } catch (err) {
     console.error('Error reading posts data:', err);
-    return [];
   }
+  return inMemoryData.posts;
 }
 
 function writePostsData(data) {
+  inMemoryData.posts = data;
   try {
+    const postsFilePath = path.join(__dirname, 'posts.json');
     fs.writeFileSync(postsFilePath, JSON.stringify(data, null, 2));
   } catch (err) {
     console.error('Error writing posts data:', err);
@@ -119,18 +111,19 @@ app.get('/posts', (req, res) => {
   res.json(posts);
 });
 
-app.post('/posts', upload.single('image'), (req, res) => {
+app.post('/posts', (req, res) => {
   const { title, excerpt, author, date } = req.body;
   if (!title || !excerpt || !author || !date) {
     return res.status(400).json({ error: 'All post fields are required' });
   }
   const posts = readPostsData();
   const newPost = { 
-    id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,    title, 
+    id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,    
+    title, 
     excerpt, 
     author, 
     date,
-    imageUrl: req.file ? `/uploads/${req.file.filename}` : null,
+    imageUrl: req.body.imageUrl || null,
     likes: 0,
     likedBy: []
   };
@@ -903,6 +896,12 @@ app.get('/api/news/ai', async (req, res) => {
 });
 
 /* ==================== START SERVER ==================== */
-app.listen(port, () => {
-  console.log(`Server running on port ${port}`);
-});
+// For local development
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(port, () => {
+    console.log(`Server running on port ${port}`);
+  });
+}
+
+// Export for Vercel
+module.exports = app;
