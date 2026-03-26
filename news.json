@@ -1,0 +1,46 @@
+[
+  {
+    "id": 1,
+    "title": "Welcome to Civic Sense News Hub",
+    "description": "Your local community news platform powered by AI and citizen journalism. Stay informed about what's happening in your neighborhood.",
+    "url": "#",
+    "urlToImage": "https://via.placeholder.com/300x200?text=Civic+Sense+News",
+    "publishedAt": "2024-01-15T10:00:00Z",
+    "source": {
+      "name": "Civic Sense"
+    }
+  },
+  {
+    "id": 2,
+    "title": "Community Clean-up Drive This Weekend",
+    "description": "Join your neighbors for a community clean-up event at the local park. Volunteers needed for litter collection and beautification efforts.",
+    "url": "#",
+    "urlToImage": "https://via.placeholder.com/300x200?text=Community+Clean-up",
+    "publishedAt": "2024-01-14T15:30:00Z",
+    "source": {
+      "name": "Local Community"
+    }
+  },
+  {
+    "id": 3,
+    "title": "New Recycling Program Launched",
+    "description": "The city has introduced a new recycling program to reduce waste. Learn how you can participate and make a difference in your community.",
+    "url": "#",
+    "urlToImage": "https://via.placeholder.com/300x200?text=Recycling+Program",
+    "publishedAt": "2024-01-13T09:15:00Z",
+    "source": {
+      "name": "City Council"
+    }
+  },
+  {
+    "id": 4,
+    "title": "Traffic Safety Improvements on Main Street",
+    "description": "New speed bumps and pedestrian crossings have been installed on Main Street to improve safety for residents and visitors.",
+    "url": "#",
+    "urlToImage": "https://via.placeholder.com/300x200?text=Traffic+Safety",
+    "publishedAt": "2024-01-12T14:45:00Z",
+    "source": {
+      "name": "Transportation Dept"
+    }
+  }
+]

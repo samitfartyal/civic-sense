@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Civic Sense - User Information</title>
+    <link rel="stylesheet" href="civic.css" />
+    <style>
+        /* 🌟 General Body */
+        body {
+            background: linear-gradient(120deg, #6bc6ff, #ffffff);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            animation: fadeIn 1.2s ease;
+        }
+
+        /* 🌟 Form Container */
+        form {
+            max-width: 500px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.95);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.15);
+            animation: slideUp 1.2s ease;
+            position: relative;
+        }
+
+        form h2 {
+            text-align: center;
+            color: #2a7fff;
+            margin-bottom: 20px;
+            animation: fadeIn 1.5s ease;
+        }
+
+        /* 🌟 Labels */
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #2c3e50;
+            transition: color 0.3s ease;
+        }
+
+        /* 🌟 Inputs */
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 20px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1em;
+            resize: vertical;
+            transition: all 0.3s ease;
+        }
+
+        /* 🌟 Focus Glow */
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #2a7fff;
+            box-shadow: 0 0 8px rgba(42, 127, 255, 0.5);
+        }
+
+        /* 🌟 Gender Section */
+        input[type="radio"] {
+            margin: 0 5px 20px 0;
+        }
+
+        /* 🌟 Button */
+        button {
+            background-color: #2a7fff;
+            color: white;
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: block;
+            margin: 0 auto;
+        }
+
+        button:hover {
+            background-color: #0056cc;
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+        }
+
+        /* 🌟 Form Message */
+        #formMessage {
+            font-weight: bold;
+            margin-top: 15px;
+            display: none;
+            text-align: center;
+        }
+
+        /* 🌟 Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(50px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+    <form id="userForm">
+        <h2>User Information Form</h2>
+        <label for="name">Full Name</label>
+        <input type="text" id="name" name="name" placeholder="Your full name" required />
+
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" placeholder="Your email address" required />
+
+        <label for="pincode">Pin Code</label>
+        <input type="text" id="pincode" name="pincode" placeholder="Your area pin code" required />
+
+        <label for="phone">Phone Number</label>
+        <input type="text" id="phone" name="phone" placeholder="Your phone number" required />
+
+        <label>Gender</label>
+        <input type="radio" id="male" name="gender" value="male" required />
+        <label for="male" style="display:inline;">Male</label>
+        <input type="radio" id="female" name="gender" value="female" required />
+        <label for="female" style="display:inline;">Female</label>
+        <input type="radio" id="other" name="gender" value="other" required />
+        <label for="other" style="display:inline;">Other</label>
+
+        <button type="submit">Submit</button>
+        <p id="formMessage"></p>
+    </form>
+<script >     document.addEventListener('DOMContentLoaded', () => {
+            const form = document.getElementById('userForm');
+            const formMessage = document.getElementById('formMessage');
+            const submitButton = form.querySelector('button[type="submit"]');
+
+            form.addEventListener('submit', async (e) => {
+                console.log('Submit event triggered');
+                e.preventDefault();
+                console.log('Default prevented');
+
+                // Disable submit button and show loading message
+                submitButton.disabled = true;
+                formMessage.style.color = 'black';
+                formMessage.textContent = 'Submitting...';
+                formMessage.style.display = 'block';
+
+                const formData = {
+                    name: form.name.value,
+                    email: form.email.value,
+                    pincode: form.pincode.value,
+                    phone: form.phone.value,
+                    gender: form.gender.value
+                };
+
+                try {
+                    const response = await fetch('http://localhost:3000/submit-form', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(formData)
+                    });
+
+                    if (response.ok) {
+                        console.log('Form submitted successfully, redirecting...');
+                        window.location.href = '/dashboard.html';
+                    } else {
+                        throw new Error('Failed to submit form');
+                    }
+                } catch (error) {
+                    console.error('Error submitting form:', error);
+                    formMessage.style.color = 'red';
+                    formMessage.textContent = 'Error submitting form. Please try again.';
+                    submitButton.disabled = false;
+                }
+            });
+        });
+    
+    </script>
+    
+</body>
+</html>

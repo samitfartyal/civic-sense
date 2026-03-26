@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Sense - Improve Your City</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <div class="nav-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-city"></i>
+                </div>
+                <span class="brand-text">Civic Sense</span>
+            </div>
+            
+            <div class="nav-links">
+                <a href="#hero" class="nav-link active"><i class="fas fa-home"></i> Home</a>
+                <a href="#issues" class="nav-link"><i class="fas fa-exclamation-circle"></i> Issues</a>
+                <a href="#map" class="nav-link"><i class="fas fa-map-marked-alt"></i> Map</a>
+                <a href="#awareness" class="nav-link"><i class="fas fa-lightbulb"></i> Awareness</a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+                <a href="report.html" class="btn-report-nav">
+                    <i class="fas fa-plus"></i> Report Issue
+                </a>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav" id="mobile-nav">
+        <a href="#hero" class="mobile-nav-link active"><i class="fas fa-home"></i><span>Home</span></a>
+        <a href="report.html" class="mobile-nav-link"><i class="fas fa-plus-circle"></i><span>Report</span></a>
+        <a href="#map" class="mobile-nav-link"><i class="fas fa-map"></i><span>Map</span></a>
+        <a href="news.html" class="mobile-nav-link"><i class="fas fa-newspaper"></i><span>News</span></a>
+        <a href="#profile" class="mobile-nav-link"><i class="fas fa-user"></i><span>Profile</span></a>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <div class="hero-background">
+            <div class="hero-gradient"></div>
+            <div class="hero-pattern"></div>
+            <div class="floating-shapes">
+                <div class="shape shape-1"></div>
+                <div class="shape shape-2"></div>
+                <div class="shape shape-3"></div>
+                <div class="shape shape-4"></div>
+            </div>
+        </div>
+        
+        <div class="hero-content">
+            <div class="hero-badge">
+                <i class="fas fa-shield-alt"></i>
+                <span>Trusted by 50,000+ Citizens</span>
+            </div>
+            
+            <h1 class="hero-title">
+                Improve Your City.<br>
+                <span class="gradient-text">Report Civic Issues</span><br>
+                Instantly.
+            </h1>
+            
+            <p class="hero-subtitle">
+                Join thousands of citizens making their communities better. Report potholes, 
+                garbage dumps, broken streetlights, and more. Together, we build smarter cities.
+            </p>
+            
+            <div class="hero-actions">
+                <a href="report.html" class="btn btn-primary btn-lg">
+                    <i class="fas fa-camera"></i>
+                    Report Issue
+                </a>
+                <a href="#map" class="btn btn-secondary btn-lg">
+                    <i class="fas fa-map-marked-alt"></i>
+                    View Map
+                </a>
+            </div>
+            
+            <div class="hero-stats-preview">
+                <div class="stat-preview">
+                    <span class="stat-number" data-count="12847">0</span>
+                    <span class="stat-label">Issues Reported</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-preview">
+                    <span class="stat-number" data-count="9823">0</span>
+                    <span class="stat-label">Issues Resolved</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-preview">
+                    <span class="stat-number" data-count="45231">0</span>
+                    <span class="stat-label">Active Users</span>
+                </div>
+            </div>
+        </div>
+        
+        <div class="hero-image">
+            <div class="hero-card glass-card">
+                <div class="card-header">
+                    <div class="card-status resolved"></div>
+                    <span>Just Resolved</span>
+                </div>
+                <div class="card-image">
+                    <img src="https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&h=250&fit=crop" alt="Fixed pothole">
+                </div>
+                <div class="card-info">
+                    <h4>Pothole Fixed - Main Street</h4>
+                    <p><i class="fas fa-map-marker-alt"></i> Downtown Area</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Impact Statistics Section -->
+    <section class="impact-section" id="impact">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge"><i class="fas fa-chart-line"></i> Our Impact</span>
+                <h2 class="section-title">Making a Real Difference</h2>
+                <p class="section-subtitle">Track the progress of civic improvements in your community</p>
+            </div>
+            
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-icon reported">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" data-target="12847">0</span>
+                        <span class="stat-title">Total Issues Reported</span>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+234 this week</span>
+                        </div>
+                    </div>
+                    <div class="stat-progress">
+                        <div class="progress-bar" data-width="75"></div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon resolved">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" data-target="9823">0</span>
+                        <span class="stat-title">Issues Resolved</span>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+189 this week</span>
+                        </div>
+                    </div>
+                    <div class="stat-progress">
+                        <div class="progress-bar success" data-width="89"></div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon users">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" data-target="45231">0</span>
+                        <span class="stat-title">Active Users</span>
+                        <div class="stat-change positive">
+                            <i class="fas fa-arrow-up"></i>
+                            <span>+567 this week</span>
+                        </div>
+                    </div>
+                    <div class="stat-progress">
+                        <div class="progress-bar info" data-width="62"></div>
+                    </div>
+                </div>
+                
+                <div class="stat-card">
+                    <div class="stat-icon response">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <span class="stat-value" data-target="24">0</span>
+                        <span class="stat-title">Avg. Response Time (hrs)</span>
+                        <div class="stat-change negative">
+                            <i class="fas fa-arrow-down"></i>
+                            <span>-4 hrs improvement</span>
+                        </div>
+                    </div>
+                    <div class="stat-progress">
+                        <div class="progress-bar warning" data-width="45"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Recent Issues Feed -->
+    <section class="issues-section" id="issues">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-header-left">
+                    <span class="section-badge"><i class="fas fa-fire"></i> Trending</span>
+                    <h2 class="section-title">Recent Civic Issues</h2>
+                    <p class="section-subtitle">Help improve your community by staying informed</p>
+                </div>
+                <div class="section-header-right">
+                    <div class="filter-tabs">
+                        <button class="filter-tab active" data-filter="all">All</button>
+                        <button class="filter-tab" data-filter="reported">Reported</button>
+                        <button class="filter-tab" data-filter="progress">In Progress</button>
+                        <button class="filter-tab" data-filter="resolved">Resolved</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="issues-grid" id="issues-grid">
+                <!-- Issue Card 1 -->
+                <div class="issue-card" data-status="reported">
+                    <div class="issue-image">
+                        <img src="https://images.unsplash.com/photo-1605600659908-0ef719419d41?w=400&h=250&fit=crop" alt="Garbage Dump">
+                        <span class="issue-category"><i class="fas fa-trash"></i> Waste</span>
+                        <div class="issue-media-type">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <div class="issue-content">
+                        <div class="issue-status reported">
+                            <i class="fas fa-circle"></i> Reported
+                        </div>
+                        <h3 class="issue-title">Large Garbage Dump Near Park</h3>
+                        <p class="issue-description">Uncollected waste piling up for over a week causing health hazards.</p>
+                        <div class="issue-meta">
+                            <span class="issue-location">
+                                <i class="fas fa-map-marker-alt"></i> Sector 15, Noida
+                            </span>
+                            <span class="issue-time">
+                                <i class="far fa-clock"></i> 2 hours ago
+                            </span>
+                        </div>
+                        <div class="issue-footer">
+                            <div class="issue-engagement">
+                                <button class="engage-btn"><i class="far fa-heart"></i> 45</button>
+                                <button class="engage-btn"><i class="far fa-comment"></i> 12</button>
+                            </div>
+                            <button class="upvote-btn">
+                                <i class="fas fa-arrow-up"></i> Upvote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Issue Card 2 -->
+                <div class="issue-card" data-status="progress">
+                    <div class="issue-image">
+                        <img src="https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=400&h=250&fit=crop" alt="Pothole">
+                        <span class="issue-category"><i class="fas fa-road"></i> Roads</span>
+                        <div class="issue-media-type">
+                            <i class="fas fa-video"></i>
+                        </div>
+                    </div>
+                    <div class="issue-content">
+                        <div class="issue-status progress">
+                            <i class="fas fa-spinner"></i> In Progress
+                        </div>
+                        <h3 class="issue-title">Dangerous Pothole on Highway</h3>
+                        <p class="issue-description">Deep pothole causing accidents. Municipal team assigned.</p>
+                        <div class="issue-meta">
+                            <span class="issue-location">
+                                <i class="fas fa-map-marker-alt"></i> MG Road, Bangalore
+                            </span>
+                            <span class="issue-time">
+                                <i class="far fa-clock"></i> 1 day ago
+                            </span>
+                        </div>
+                        <div class="issue-footer">
+                            <div class="issue-engagement">
+                                <button class="engage-btn"><i class="far fa-heart"></i> 128</button>
+                                <button class="engage-btn"><i class="far fa-comment"></i> 34</button>
+                            </div>
+                            <button class="upvote-btn">
+                                <i class="fas fa-arrow-up"></i> Upvote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Issue Card 3 -->
+                <div class="issue-card" data-status="resolved">
+                    <div class="issue-image">
+                        <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&h=250&fit=crop" alt="Street Light">
+                        <span class="issue-category"><i class="fas fa-lightbulb"></i> Lighting</span>
+                        <div class="issue-media-type">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <div class="issue-content">
+                        <div class="issue-status resolved">
+                            <i class="fas fa-check"></i> Resolved
+                        </div>
+                        <h3 class="issue-title">Broken Street Light Fixed</h3>
+                        <p class="issue-description">Street light repaired after 3 days of reporting.</p>
+                        <div class="issue-meta">
+                            <span class="issue-location">
+                                <i class="fas fa-map-marker-alt"></i> Andheri West, Mumbai
+                            </span>
+                            <span class="issue-time">
+                                <i class="far fa-clock"></i> 3 days ago
+                            </span>
+                        </div>
+                        <div class="issue-footer">
+                            <div class="issue-engagement">
+                                <button class="engage-btn"><i class="fas fa-heart"></i> 89</button>
+                                <button class="engage-btn"><i class="far fa-comment"></i> 8</button>
+                            </div>
+                            <button class="upvote-btn resolved">
+                                <i class="fas fa-check"></i> Resolved
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Issue Card 4 -->
+                <div class="issue-card" data-status="reported">
+                    <div class="issue-image">
+                        <img src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=400&h=250&fit=crop" alt="Water Logging">
+                        <span class="issue-category"><i class="fas fa-water"></i> Drainage</span>
+                        <div class="issue-media-type">
+                            <i class="fas fa-video"></i>
+                        </div>
+                    </div>
+                    <div class="issue-content">
+                        <div class="issue-status reported">
+                            <i class="fas fa-circle"></i> Reported
+                        </div>
+                        <h3 class="issue-title">Water Logging After Rain</h3>
+                        <p class="issue-description">Severe waterlogging blocking traffic and pedestrians.</p>
+                        <div class="issue-meta">
+                            <span class="issue-location">
+                                <i class="fas fa-map-marker-alt"></i> Connaught Place, Delhi
+                            </span>
+                            <span class="issue-time">
+                                <i class="far fa-clock"></i> 5 hours ago
+                            </span>
+                        </div>
+                        <div class="issue-footer">
+                            <div class="issue-engagement">
+                                <button class="engage-btn"><i class="far fa-heart"></i> 234</button>
+                                <button class="engage-btn"><i class="far fa-comment"></i> 56</button>
+                            </div>
+                            <button class="upvote-btn">
+                                <i class="fas fa-arrow-up"></i> Upvote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Issue Card 5 -->
+                <div class="issue-card" data-status="progress">
+                    <div class="issue-image">
+                        <img src="https://images.unsplash.com/photo-1581093458791-9d42e3c7e117?w=400&h=250&fit=crop" alt="Stray Animals">
+                        <span class="issue-category"><i class="fas fa-paw"></i> Animals</span>
+                        <div class="issue-media-type">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <div class="issue-content">
+                        <div class="issue-status progress">
+                            <i class="fas fa-spinner"></i> In Progress
+                        </div>
+                        <h3 class="issue-title">Stray Dog Pack Near School</h3>
+                        <p class="issue-description">Animal control team dispatched for rescue operation.</p>
+                        <div class="issue-meta">
+                            <span class="issue-location">
+                                <i class="fas fa-map-marker-alt"></i> Koramangala, Bangalore
+                            </span>
+                            <span class="issue-time">
+                                <i class="far fa-clock"></i> 12 hours ago
+                            </span>
+                        </div>
+                        <div class="issue-footer">
+                            <div class="issue-engagement">
+                                <button class="engage-btn"><i class="far fa-heart"></i> 67</button>
+                                <button class="engage-btn"><i class="far fa-comment"></i> 23</button>
+                            </div>
+                            <button class="upvote-btn">
+                                <i class="fas fa-arrow-up"></i> Upvote
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Issue Card 6 -->
+                <div class="issue-card" data-status="resolved">
+                    <div class="issue-image">
+                        <img src="https://images.unsplash.com/photo-1590846083693-f23fdede3a7e?w=400&h=250&fit=crop" alt="Illegal Construction">
+                        <span class="issue-category"><i class="fas fa-building"></i> Construction</span>
+                        <div class="issue-media-type">
+                            <i class="fas fa-camera"></i>
+                        </div>
+                    </div>
+                    <div class="issue-content">
+                        <div class="issue-status resolved">
+                            <i class="fas fa-check"></i> Resolved
+                        </div>
+                        <h3 class="issue-title">Illegal Construction Removed</h3>
+                        <p class="issue-description">Unauthorized structure demolished by municipal authorities.</p>
+                        <div class="issue-meta">
+                            <span class="issue-location">
+                                <i class="fas fa-map-marker-alt"></i> Salt Lake, Kolkata
+                            </span>
+                            <span class="issue-time">
+                                <i class="far fa-clock"></i> 1 week ago
+                            </span>
+                        </div>
+                        <div class="issue-footer">
+                            <div class="issue-engagement">
+                                <button class="engage-btn"><i class="fas fa-heart"></i> 312</button>
+                                <button class="engage-btn"><i class="far fa-comment"></i> 45</button>
+                            </div>
+                            <button class="upvote-btn resolved">
+                                <i class="fas fa-check"></i> Resolved
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="load-more-container">
+                <button class="btn btn-outline btn-lg" id="load-more-issues">
+                    <i class="fas fa-plus"></i> Load More Issues
+                </button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Map Preview Section -->
+    <section class="map-section" id="map">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge"><i class="fas fa-map-marked-alt"></i> Live Map</span>
+                <h2 class="section-title">Issues Near You</h2>
+                <p class="section-subtitle">Explore civic issues reported in your area</p>
+            </div>
+            
+            <div class="map-container">
+                <div class="map-wrapper">
+                    <div class="map-overlay">
+                        <div class="map-stats">
+                            <div class="map-stat">
+                                <span class="map-stat-value">234</span>
+                                <span class="map-stat-label">Active Issues</span>
+                            </div>
+                            <div class="map-stat">
+                                <span class="map-stat-value">89</span>
+                                <span class="map-stat-label">Resolved Today</span>
+                            </div>
+                        </div>
+                    </div>
+                    <iframe 
+                        src="https://www.openstreetmap.org/export/embed.html?bbox=77.0%2C28.5%2C77.3%2C28.8&layer=mapnik&marker=28.6139%2C77.2090"
+                        class="map-iframe"
+                        allowfullscreen>
+                    </iframe>
+                    <div class="map-markers">
+                        <div class="map-marker reported" style="top: 30%; left: 40%;" title="Garbage Issue">
+                            <i class="fas fa-trash"></i>
+                        </div>
+                        <div class="map-marker progress" style="top: 45%; left: 60%;" title="Pothole - In Progress">
+                            <i class="fas fa-road"></i>
+                        </div>
+                        <div class="map-marker resolved" style="top: 55%; left: 35%;" title="Street Light Fixed">
+                            <i class="fas fa-lightbulb"></i>
+                        </div>
+                        <div class="map-marker reported" style="top: 35%; left: 70%;" title="Water Logging">
+                            <i class="fas fa-water"></i>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="map-sidebar">
+                    <h3>Recent Reports</h3>
+                    <div class="map-issues-list">
+                        <div class="map-issue-item">
+                            <div class="map-issue-icon reported">
+                                <i class="fas fa-trash"></i>
+                            </div>
+                            <div class="map-issue-info">
+                                <h4>Garbage Dump</h4>
+                                <p>Sector 15, Noida</p>
+                            </div>
+                            <span class="map-issue-time">2h ago</span>
+                        </div>
+                        <div class="map-issue-item">
+                            <div class="map-issue-icon progress">
+                                <i class="fas fa-road"></i>
+                            </div>
+                            <div class="map-issue-info">
+                                <h4>Pothole</h4>
+                                <p>MG Road, Bangalore</p>
+                            </div>
+                            <span class="map-issue-time">1d ago</span>
+                        </div>
+                        <div class="map-issue-item">
+                            <div class="map-issue-icon resolved">
+                                <i class="fas fa-lightbulb"></i>
+                            </div>
+                            <div class="map-issue-info">
+                                <h4>Street Light</h4>
+                                <p>Andheri, Mumbai</p>
+                            </div>
+                            <span class="map-issue-time">3d ago</span>
+                        </div>
+                    </div>
+                    <a href="#" class="btn btn-primary btn-block">
+                        <i class="fas fa-expand"></i> View Full Map
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Awareness Section -->
+    <section class="awareness-section" id="awareness">
+        <div class="container">
+            <div class="section-header">
+                <span class="section-badge"><i class="fas fa-lightbulb"></i> Learn</span>
+                <h2 class="section-title">Civic Awareness</h2>
+                <p class="section-subtitle">Tips and guidelines for responsible citizenship</p>
+            </div>
+            
+            <div class="awareness-grid">
+                <div class="awareness-card">
+                    <div class="awareness-icon waste">
+                        <i class="fas fa-recycle"></i>
+                    </div>
+                    <h3>Waste Management</h3>
+                    <p>Separate wet and dry waste. Compost organic waste at home. Avoid single-use plastics.</p>
+                    <ul class="awareness-tips">
+                        <li><i class="fas fa-check"></i> Use separate bins</li>
+                        <li><i class="fas fa-check"></i> Recycle paper & plastic</li>
+                        <li><i class="fas fa-check"></i> Avoid littering</li>
+                    </ul>
+                    <a href="#" class="awareness-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="awareness-card">
+                    <div class="awareness-icon traffic">
+                        <i class="fas fa-traffic-light"></i>
+                    </div>
+                    <h3>Traffic Rules</h3>
+                    <p>Follow traffic signals. Wear helmets and seatbelts. Don't use phones while driving.</p>
+                    <ul class="awareness-tips">
+                        <li><i class="fas fa-check"></i> Follow speed limits</li>
+                        <li><i class="fas fa-check"></i> Use zebra crossings</li>
+                        <li><i class="fas fa-check"></i> No drunk driving</li>
+                    </ul>
+                    <a href="#" class="awareness-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="awareness-card">
+                    <div class="awareness-icon water">
+                        <i class="fas fa-tint"></i>
+                    </div>
+                    <h3>Water Conservation</h3>
+                    <p>Fix leaking taps. Harvest rainwater. Use water wisely for daily activities.</p>
+                    <ul class="awareness-tips">
+                        <li><i class="fas fa-check"></i> Turn off taps</li>
+                        <li><i class="fas fa-check"></i> Reuse water</li>
+                        <li><i class="fas fa-check"></i> Report leaks</li>
+                    </ul>
+                    <a href="#" class="awareness-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="awareness-card">
+                    <div class="awareness-icon cleanliness">
+                        <i class="fas fa-broom"></i>
+                    </div>
+                    <h3>Cleanliness</h3>
+                    <p>Keep surroundings clean. Participate in community cleaning drives. Avoid spitting in public.</p>
+                    <ul class="awareness-tips">
+                        <li><i class="fas fa-check"></i> Use dustbins</li>
+                        <li><i class="fas fa-check"></i> Clean your area</li>
+                        <li><i class="fas fa-check"></i> Educate others</li>
+                    </ul>
+                    <a href="#" class="awareness-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="awareness-card">
+                    <div class="awareness-icon trees">
+                        <i class="fas fa-tree"></i>
+                    </div>
+                    <h3>Green Spaces</h3>
+                    <p>Plant trees. Protect parks and gardens. Support urban forestry initiatives.</p>
+                    <ul class="awareness-tips">
+                        <li><i class="fas fa-check"></i> Plant a tree</li>
+                        <li><i class="fas fa-check"></i> Join green drives</li>
+                        <li><i class="fas fa-check"></i> Protect nature</li>
+                    </ul>
+                    <a href="#" class="awareness-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+
+                <div class="awareness-card">
+                    <div class="awareness-icon noise">
+                        <i class="fas fa-volume-down"></i>
+                    </div>
+                    <h3>Noise Pollution</h3>
+                    <p>Keep noise levels low. Avoid honking unnecessarily. Respect quiet zones.</p>
+                    <ul class="awareness-tips">
+                        <li><i class="fas fa-check"></i> Use headphones</li>
+                        <li><i class="fas fa-check"></i> Avoid loud music</li>
+                        <li><i class="fas fa-check"></i> Report violations</li>
+                    </ul>
+                    <a href="#" class="awareness-link">Learn More <i class="fas fa-arrow-right"></i></a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Call to Action Section -->
+    <section class="cta-section">
+        <div class="container">
+            <div class="cta-content">
+                <h2>Ready to Make a Difference?</h2>
+                <p>Join thousands of citizens working together to improve their communities.</p>
+                <div class="cta-actions">
+                    <a href="report.html" class="btn btn-primary btn-lg">
+                        <i class="fas fa-camera"></i> Report Your First Issue
+                    </a>
+                    <a href="dashboard.html" class="btn btn-outline btn-lg">
+                        <i class="fas fa-user-plus"></i> Create Account
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <div class="footer-logo">
+                        <i class="fas fa-city"></i>
+                        <span>Civic Sense</span>
+                    </div>
+                    <p>Empowering citizens to build better communities through technology and collaboration.</p>
+                    <div class="footer-social">
+                        <a href="#" class="social-link"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-link"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="#hero">Home</a></li>
+                        <li><a href="report.html">Report Issue</a></li>
+                        <li><a href="#map">View Map</a></li>
+                        <li><a href="news.html">News</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Resources</h4>
+                    <ul>
+                        <li><a href="#awareness">Civic Tips</a></li>
+                        <li><a href="#">FAQs</a></li>
+                        <li><a href="#">Contact Us</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4>Contact</h4>
+                    <p><i class="fas fa-envelope"></i> support@civicsense.in</p>
+                    <p><i class="fas fa-phone"></i> +91 1800-XXX-XXXX</p>
+                    <p><i class="fas fa-map-marker-alt"></i> New Delhi, India</p>
+                </div>
+            </div>
+            
+            <div class="footer-bottom">
+                <p>&copy; 2026 Civic Sense. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Action Button -->
+    <a href="report.html" class="fab" title="Report Issue">
+        <i class="fas fa-plus"></i>
+    </a>
+
+    <script src="dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Sense - Media</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="common-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="dashboard.html" class="nav-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-city"></i>
+                </div>
+                <span class="brand-text">Civic Sense</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                <a href="report.html" class="nav-link"><i class="fas fa-exclamation-circle"></i> Report</a>
+                <a href="posts.html" class="nav-link"><i class="fas fa-images"></i> Posts</a>
+                <a href="reels.html" class="nav-link active"><i class="fas fa-video"></i> Media</a>
+                <a href="news.html" class="nav-link"><i class="fas fa-newspaper"></i> News</a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav hidden" id="mobile-nav">
+        <a href="dashboard.html" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="report.html" class="mobile-nav-link"><i class="fas fa-exclamation-circle"></i> Report Issue</a>
+        <a href="posts.html" class="mobile-nav-link"><i class="fas fa-images"></i> Posts</a>
+        <a href="reels.html" class="mobile-nav-link active"><i class="fas fa-video"></i> Media</a>
+        <a href="news.html" class="mobile-nav-link"><i class="fas fa-newspaper"></i> News</a>
+    </nav>
+
+    <!-- Page Wrapper -->
+    <div class="page-wrapper">
+        <div class="page-container">
+            <!-- Page Header -->
+            <div class="page-header">
+                <span class="page-badge"><i class="fas fa-video"></i> Media Gallery</span>
+                <h1 class="page-title">Share Your Media</h1>
+                <p class="page-subtitle">Upload videos and photos to showcase civic issues and community events</p>
+            </div>
+
+            <!-- Upload Card -->
+            <div class="glass-card" style="max-width: 700px; margin: 0 auto 30px;">
+                <div class="card-header">
+                    <div class="card-header-icon">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                    </div>
+                    <h2>Upload Media</h2>
+                </div>
+                <div class="card-body">
+                    <form id="mediaUploadForm" enctype="multipart/form-data">
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-heading"></i> Title
+                                </label>
+                                <input type="text" id="mediaTitle" name="title" class="form-input" placeholder="Give your media a title..." required>
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="fas fa-user"></i> Author Name
+                                </label>
+                                <input type="text" id="mediaAuthor" name="author" class="form-input" placeholder="Your name..." required>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-folder"></i> Media Type
+                            </label>
+                            <select id="mediaType" name="mediaType" class="form-select" required>
+                                <option value="">Select media type...</option>
+                                <option value="video">Video</option>
+                                <option value="image">Image Gallery</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-align-left"></i> Description
+                            </label>
+                            <textarea id="mediaDescription" name="description" class="form-textarea" placeholder="Describe what's in your media..." required></textarea>
+                        </div>
+
+                        <!-- Video Upload -->
+                        <div class="form-group" id="videoUploadGroup">
+                            <label class="form-label">
+                                <i class="fas fa-video"></i> Upload Video
+                            </label>
+                            <div class="file-upload-zone" id="videoUploadZone">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-film"></i>
+                                </div>
+                                <p class="file-upload-text">Drag & drop your video here</p>
+                                <p class="file-upload-hint">or <span>browse</span> to upload (MP4, MOV, AVI)</p>
+                                <input type="file" id="videoFile" name="video" accept="video/*" style="display: none;">
+                            </div>
+                            <div id="videoPreview" style="margin-top: 16px; display: none;">
+                                <video id="previewVideo" controls style="width: 100%; border-radius: var(--radius-lg);"></video>
+                                <button type="button" onclick="removeVideo()" class="btn btn-danger btn-sm" style="margin-top: 10px;">
+                                    <i class="fas fa-trash"></i> Remove Video
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- Image Upload -->
+                        <div class="form-group" id="imageUploadGroup" style="display: none;">
+                            <label class="form-label">
+                                <i class="fas fa-images"></i> Upload Images
+                            </label>
+                            <div class="file-upload-zone" id="imageUploadZone">
+                                <div class="file-upload-icon">
+                                    <i class="fas fa-images"></i>
+                                </div>
+                                <p class="file-upload-text">Drag & drop your images here</p>
+                                <p class="file-upload-hint">or <span>browse</span> to upload (max 10 images)</p>
+                                <input type="file" id="imageFiles" name="images" accept="image/*" multiple style="display: none;">
+                            </div>
+                            <div class="btn-group" style="margin-top: 12px;">
+                                <button type="button" id="captureFromCamera" class="btn btn-outline btn-sm">
+                                    <i class="fas fa-camera"></i> Capture from Camera
+                                </button>
+                            </div>
+                            <div id="imagePreviewContainer" class="file-preview"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label">
+                                <i class="fas fa-map-marker-alt"></i> Location (Optional)
+                            </label>
+                            <div class="input-group">
+                                <i class="input-group-icon fas fa-location-dot"></i>
+                                <input type="text" id="mediaLocation" name="location" class="form-input" placeholder="Where was this taken?" style="padding-left: 48px;">
+                            </div>
+                        </div>
+
+                        <div class="btn-group">
+                            <button type="submit" class="btn btn-primary btn-lg btn-block">
+                                <i class="fas fa-cloud-upload-alt"></i> Upload Media
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Media Feed -->
+            <div class="glass-card" style="max-width: 700px; margin: 0 auto;">
+                <div class="card-header">
+                    <div class="card-header-icon">
+                        <i class="fas fa-fire"></i>
+                    </div>
+                    <h2>Recent Media</h2>
+                </div>
+                <div class="card-body" id="mediaContainer" style="padding: 0;">
+                    <!-- Media will be dynamically inserted here -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script>
+        // State
+        let mediaData = [];
+        let selectedVideo = null;
+        let selectedImages = [];
+
+        // DOM Elements
+        const mediaContainer = document.getElementById('mediaContainer');
+        const mediaForm = document.getElementById('mediaUploadForm');
+        const mediaTypeSelect = document.getElementById('mediaType');
+        const videoUploadGroup = document.getElementById('videoUploadGroup');
+        const imageUploadGroup = document.getElementById('imageUploadGroup');
+        const videoUploadZone = document.getElementById('videoUploadZone');
+        const videoFileInput = document.getElementById('videoFile');
+        const videoPreview = document.getElementById('videoPreview');
+        const previewVideo = document.getElementById('previewVideo');
+        const imageUploadZone = document.getElementById('imageUploadZone');
+        const imageFilesInput = document.getElementById('imageFiles');
+        const imagePreviewContainer = document.getElementById('imagePreviewContainer');
+        const captureFromCameraBtn = document.getElementById('captureFromCamera');
+        const themeToggle = document.getElementById('theme-toggle');
+        const mobileMenuBtn = document.getElementById('mobile-menu-btn');
+        const mobileNav = document.getElementById('mobile-nav');
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadMedia();
+            setupEventListeners();
+        });
+
+        function setupEventListeners() {
+            // Theme Toggle
+            themeToggle.addEventListener('click', toggleDarkMode);
+            
+            // Mobile Menu
+            mobileMenuBtn.addEventListener('click', () => {
+                mobileNav.classList.toggle('hidden');
+            });
+            
+            // Media Type Change
+            mediaTypeSelect.addEventListener('change', () => {
+                const type = mediaTypeSelect.value;
+                if (type === 'video') {
+                    videoUploadGroup.style.display = 'block';
+                    imageUploadGroup.style.display = 'none';
+                } else if (type === 'image') {
+                    videoUploadGroup.style.display = 'none';
+                    imageUploadGroup.style.display = 'block';
+                } else {
+                    videoUploadGroup.style.display = 'block';
+                    imageUploadGroup.style.display = 'none';
+                }
+            });
+            
+            // Video Upload
+            videoUploadZone.addEventListener('click', () => videoFileInput.click());
+            
+            videoUploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                videoUploadZone.classList.add('dragover');
+            });
+            
+            videoUploadZone.addEventListener('dragleave', () => {
+                videoUploadZone.classList.remove('dragover');
+            });
+            
+            videoUploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                videoUploadZone.classList.remove('dragover');
+                const file = e.dataTransfer.files[0];
+                if (file && file.type.startsWith('video/')) {
+                    handleVideoSelect(file);
+                }
+            });
+            
+            videoFileInput.addEventListener('change', (e) => {
+                if (e.target.files[0]) {
+                    handleVideoSelect(e.target.files[0]);
+                }
+            });
+            
+            // Image Upload
+            imageUploadZone.addEventListener('click', () => imageFilesInput.click());
+            
+            imageUploadZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                imageUploadZone.classList.add('dragover');
+            });
+            
+            imageUploadZone.addEventListener('dragleave', () => {
+                imageUploadZone.classList.remove('dragover');
+            });
+            
+            imageUploadZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                imageUploadZone.classList.remove('dragover');
+                handleImagesSelect(e.dataTransfer.files);
+            });
+            
+            imageFilesInput.addEventListener('change', (e) => {
+                handleImagesSelect(e.target.files);
+            });
+            
+            // Capture from Camera
+            captureFromCameraBtn.addEventListener('click', () => {
+                imageFilesInput.setAttribute('capture', 'environment');
+                imageFilesInput.click();
+            });
+            
+            // Form Submit
+            mediaForm.addEventListener('submit', handleFormSubmit);
+        }
+
+        function handleVideoSelect(file) {
+            selectedVideo = file;
+            const url = URL.createObjectURL(file);
+            previewVideo.src = url;
+            videoPreview.style.display = 'block';
+            videoUploadZone.style.display = 'none';
+        }
+
+        function removeVideo() {
+            selectedVideo = null;
+            videoFileInput.value = '';
+            videoPreview.style.display = 'none';
+            videoUploadZone.style.display = 'block';
+        }
+
+        function handleImagesSelect(files) {
+            const maxFiles = 10;
+            const newFiles = Array.from(files).slice(0, maxFiles - selectedImages.length);
+            
+            newFiles.forEach(file => {
+                if (file.type.startsWith('image/')) {
+                    selectedImages.push(file);
+                    addImagePreview(file);
+                }
+            });
+        }
+
+        function addImagePreview(file) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const previewItem = document.createElement('div');
+                previewItem.className = 'file-preview-item';
+                previewItem.innerHTML = `
+                    <img src="${e.target.result}" alt="Preview">
+                    <button type="button" class="file-preview-remove" onclick="removeImage(this, '${file.name}')">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+                imagePreviewContainer.appendChild(previewItem);
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removeImage(btn, fileName) {
+            selectedImages = selectedImages.filter(f => f.name !== fileName);
+            btn.parentElement.remove();
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('mediaTitle').value;
+            const author = document.getElementById('mediaAuthor').value;
+            const mediaType = document.getElementById('mediaType').value;
+            const description = document.getElementById('mediaDescription').value;
+            const location = document.getElementById('mediaLocation').value;
+            
+            if (mediaType === 'video' && !selectedVideo) {
+                showToast('Please select a video', 'error');
+                return;
+            }
+            
+            if (mediaType === 'image' && selectedImages.length === 0) {
+                showToast('Please select at least one image', 'error');
+                return;
+            }
+            
+            const formData = new FormData();
+            formData.append('title', title);
+            formData.append('author', author);
+            formData.append('description', description);
+            formData.append('location', location);
+            formData.append('date', new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }));
+            
+            if (mediaType === 'video' && selectedVideo) {
+                formData.append('video', selectedVideo);
+            } else {
+                selectedImages.forEach(file => {
+                    formData.append('images', file);
+                });
+            }
+            
+            const submitBtn = mediaForm.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+            
+            try {
+                // For demo, we'll just add to local array
+                const newMedia = {
+                    title: title,
+                    author: author,
+                    description: description,
+                    date: new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' }),
+                    type: mediaType,
+                    location: location,
+                    likes: 0,
+                    comments: 0
+                };
+                
+                if (mediaType === 'video' && selectedVideo) {
+                    newMedia.videoUrl = URL.createObjectURL(selectedVideo);
+                } else if (selectedImages.length > 0) {
+                    newMedia.imageUrls = selectedImages.map(f => URL.createObjectURL(f));
+                }
+                
+                mediaData.unshift(newMedia);
+                renderMedia();
+                
+                // Reset form
+                mediaForm.reset();
+                removeVideo();
+                selectedImages = [];
+                imagePreviewContainer.innerHTML = '';
+                
+                showToast('Media uploaded successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Error:', error);
+                showToast('Failed to upload media', 'error');
+            }
+            
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Upload Media';
+        }
+
+        function loadMedia() {
+            // Sample data
+            mediaData = [
+                {
+                    title: "Community Clean-up Drive",
+                    author: "Rahul Sharma",
+                    description: "Our community came together to clean the local park. Over 50 volunteers participated!",
+                    date: "March 20, 2026",
+                    type: "video",
+                    videoUrl: "https://sample-videos.com/video123/mp4/240/big_buck_bunny_240p_1mb.mp4",
+                    location: "Central Park, Delhi",
+                    likes: 234,
+                    comments: 45
+                },
+                {
+                    title: "Pothole Before & After",
+                    author: "Priya Patel",
+                    description: "The pothole that was reported last week has finally been fixed!",
+                    date: "March 18, 2026",
+                    type: "image",
+                    imageUrls: [
+                        "https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?w=400&h=300&fit=crop",
+                        "https://images.unsplash.com/photo-1517457373958-b7bdd4587205?w=400&h=300&fit=crop"
+                    ],
+                    location: "MG Road, Bangalore",
+                    likes: 156,
+                    comments: 28
+                }
+            ];
+            
+            renderMedia();
+        }
+
+        function renderMedia() {
+            if (mediaData.length === 0) {
+                mediaContainer.innerHTML = `
+                    <div style="text-align: center; padding: 60px 20px;">
+                        <i class="fas fa-video" style="font-size: 3rem; color: var(--text-muted); margin-bottom: 16px;"></i>
+                        <p style="color: var(--text-secondary);">No media yet. Be the first to upload!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            mediaContainer.innerHTML = mediaData.map(media => `
+                <div class="media-card" style="border-bottom: 1px solid var(--border-color);">
+                    ${media.type === 'video' && media.videoUrl ? `
+                        <div style="margin: -24px -24px 20px;">
+                            <video src="${media.videoUrl}" controls style="width: 100%; max-height: 400px; background: #000;"></video>
+                        </div>
+                    ` : ''}
+                    ${media.type === 'image' && media.imageUrls ? `
+                        <div style="margin: -24px -24px 20px; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 4px;">
+                            ${media.imageUrls.map(url => `
+                                <img src="${url}" alt="Media" style="width: 100%; height: 200px; object-fit: cover;">
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    <div style="padding: 0 24px 24px;">
+                        <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 12px;">
+                            <div style="width: 40px; height: 40px; background: linear-gradient(135deg, var(--primary-500), var(--teal-500)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 600;">
+                                ${media.author.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                                <div style="font-weight: 600; color: var(--text-primary);">${media.author}</div>
+                                <div style="font-size: 0.8rem; color: var(--text-muted);">${media.date}${media.location ? ' • ' + media.location : ''}</div>
+                            </div>
+                            <span class="status-badge" style="margin-left: auto; background: ${media.type === 'video' ? 'var(--primary-50)' : 'var(--success-50)'}; color: ${media.type === 'video' ? 'var(--primary-600)' : 'var(--success-600)'};">
+                                <i class="fas fa-${media.type === 'video' ? 'video' : 'images'}"></i> ${media.type === 'video' ? 'Video' : 'Photos'}
+                            </span>
+                        </div>
+                        <h3 style="font-size: 1.2rem; font-weight: 700; color: var(--text-primary); margin-bottom: 8px;">${media.title}</h3>
+                        <p style="color: var(--text-secondary); margin-bottom: 16px; line-height: 1.6;">${media.description}</p>
+                        <div style="display: flex; gap: 20px; padding-top: 16px; border-top: 1px solid var(--border-color);">
+                            <button onclick="toggleLike(this)" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--bg-secondary); border: none; border-radius: var(--radius-md); color: var(--text-secondary); cursor: pointer;">
+                                <i class="far fa-heart"></i> <span>${media.likes}</span>
+                            </button>
+                            <button style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--bg-secondary); border: none; border-radius: var(--radius-md); color: var(--text-secondary); cursor: pointer;">
+                                <i class="far fa-comment"></i> <span>${media.comments}</span>
+                            </button>
+                            <button onclick="shareMedia('${media.title}')" style="display: flex; align-items: center; gap: 6px; padding: 8px 16px; background: var(--bg-secondary); border: none; border-radius: var(--radius-md); color: var(--text-secondary); cursor: pointer; margin-left: auto;">
+                                <i class="fas fa-share-alt"></i> Share
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function toggleLike(btn) {
+            const icon = btn.querySelector('i');
+            const countSpan = btn.querySelector('span');
+            let count = parseInt(countSpan.textContent);
+            
+            if (icon.classList.contains('far')) {
+                icon.classList.remove('far');
+                icon.classList.add('fas');
+                btn.style.color = 'var(--danger-500)';
+                countSpan.textContent = count + 1;
+            } else {
+                icon.classList.remove('fas');
+                icon.classList.add('far');
+                btn.style.color = '';
+                countSpan.textContent = count - 1;
+            }
+        }
+
+        function shareMedia(title) {
+            if (navigator.share) {
+                navigator.share({ title: title });
+            } else {
+                navigator.clipboard.writeText(title);
+                showToast('Link copied to clipboard!', 'success');
+            }
+        }
+
+        function toggleDarkMode() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+            themeToggle.querySelector('i').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('darkMode', !isDark);
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        // Load saved theme
+        if (localStorage.getItem('darkMode') === 'true') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.querySelector('i').className = 'fas fa-sun';
+        }
+    </script>
+</body>
+</html>
