@@ -398,41 +398,62 @@
         async function handleFormSubmit(e) {
             e.preventDefault();
             
-            const formData = new FormData();
-            formData.append('title', document.getElementById('issueTitle').value);
-            formData.append('description', document.getElementById('description').value);
-            formData.append('contactName', document.getElementById('contactName').value);
-            formData.append('contactEmail', document.getElementById('contactEmail').value);
-            formData.append('location', document.getElementById('location').value);
-            formData.append('reportType', document.getElementById('reportType').value);
-            formData.append('urgency', document.querySelector('input[name="urgency"]:checked')?.value || 'medium');
-            
-            selectedFiles.forEach(file => {
-                formData.append('photos', file);
-            });
+            const title = document.getElementById('issueTitle').value;
+            const description = document.getElementById('description').value;
+            const contactName = document.getElementById('contactName').value;
+            const contactEmail = document.getElementById('contactEmail').value;
+            const location = document.getElementById('location').value;
+            const reportType = document.getElementById('reportType').value;
+            const urgency = document.querySelector('input[name="urgency"]:checked')?.value || 'medium';
             
             const submitBtn = reportForm.querySelector('button[type="submit"]');
             submitBtn.disabled = true;
             submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Submitting...';
             
             try {
-                const response = await fetch('/reports', {
-                    method: 'POST',
-                    body: formData
-                });
-                
-                const data = await response.json();
-                
-                if (data.error) {
-                    showToast(data.error, 'error');
-                } else {
-                    showToast('Report submitted successfully!', 'success');
-                    reportForm.reset();
-                    selectedFiles = [];
-                    photoPreviewContainer.innerHTML = '';
-                    suggestionBox.style.display = 'none';
-                    addRecentReport(data.report);
+                // Convert photos to base64
+                const photos = [];
+                for (const file of selectedFiles) {
+                    const base64 = await toBase64(file);
+                    photos.push(base64);
                 }
+                
+                // Create report object
+                const newReport = {
+                    id: Date.now().toString(),
+                    title: title,
+                    description: description,
+                    contactName: contactName,
+                    contactEmail: contactEmail,
+                    location: location,
+                    reportType: reportType,
+                    urgency: urgency,
+                    photos: photos,
+                    status: 'reported',
+                    submittedAt: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                const savedReports = localStorage.getItem('civicReports') || '[]';
+                const reports = JSON.parse(savedReports);
+                reports.unshift(newReport);
+                localStorage.setItem('civicReports', JSON.stringify(reports));
+                
+                showToast('Report submitted successfully!', 'success');
+                reportForm.reset();
+                selectedFiles = [];
+                photoPreviewContainer.innerHTML = '';
+                suggestionBox.style.display = 'none';
+                addRecentReport(newReport);
+                
+                // Also try to send to server (but don't wait)
+                const formData = new FormData();
+                formData.append('title', title);
+                formData.append('description', description);
+                formData.append('contactName', contactName);
+                formData.append('contactEmail', contactEmail);
+                fetch('/reports', { method: 'POST', body: formData }).catch(() => {});
+                
             } catch (error) {
                 console.error('Error:', error);
                 showToast('Failed to submit report', 'error');
@@ -440,6 +461,15 @@
             
             submitBtn.disabled = false;
             submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Submit Report';
+        }
+
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = error => reject(error);
+            });
         }
 
         function addRecentReport(report) {

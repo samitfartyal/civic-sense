@@ -398,7 +398,9 @@
                     newMedia.imageUrls = selectedImages.map(f => URL.createObjectURL(f));
                 }
                 
+                // Save to localStorage
                 mediaData.unshift(newMedia);
+                localStorage.setItem('civicMedia', JSON.stringify(mediaData));
                 renderMedia();
                 
                 // Reset form
@@ -419,9 +421,18 @@
         }
 
         function loadMedia() {
-            // Sample data
+            // Load from localStorage first
+            const savedMedia = localStorage.getItem('civicMedia');
+            if (savedMedia) {
+                mediaData = JSON.parse(savedMedia);
+                renderMedia();
+                return;
+            }
+            
+            // Default sample data
             mediaData = [
                 {
+                    id: 1,
                     title: "Community Clean-up Drive",
                     author: "Rahul Sharma",
                     description: "Our community came together to clean the local park. Over 50 volunteers participated!",
@@ -433,6 +444,7 @@
                     comments: 45
                 },
                 {
+                    id: 2,
                     title: "Pothole Before & After",
                     author: "Priya Patel",
                     description: "The pothole that was reported last week has finally been fixed!",
