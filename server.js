@@ -37,6 +37,11 @@ const inMemoryData = {
   news: []
 };
 
+// Root route - serve dashboard
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'dashboard.html'));
+});
+
 // Explicit routes to serve posts.html and reel.html
 app.get('/posts.html', (req, res) => {
   res.sendFile(path.join(__dirname, 'posts.html'));
