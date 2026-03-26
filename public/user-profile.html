@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Sense - User Profile</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="common-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .auth-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .auth-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 40px;
+            max-width: 450px;
+            width: 100%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        [data-theme="dark"] .auth-card {
+            background: rgba(30, 41, 59, 0.95);
+        }
+        
+        .auth-header {
+            text-align: center;
+            margin-bottom: 32px;
+        }
+        
+        .auth-icon {
+            width: 64px;
+            height: 64px;
+            background: linear-gradient(135deg, #3b82f6, #14b8a6);
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.5rem;
+            color: white;
+        }
+        
+        .auth-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .auth-subtitle {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .form-label i {
+            color: #3b82f6;
+        }
+        
+        .form-input {
+            width: 100%;
+            padding: 14px 16px;
+            font-size: 0.95rem;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            transition: all 0.2s;
+            font-family: inherit;
+        }
+        
+        .form-input:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        }
+        
+        .auth-btn {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        .auth-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        
+        .auth-footer {
+            text-align: center;
+            margin-top: 24px;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+        
+        .auth-footer a {
+            color: #3b82f6;
+            text-decoration: none;
+            font-weight: 600;
+        }
+        
+        .auth-footer a:hover {
+            text-decoration: underline;
+        }
+        
+        .back-btn {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        [data-theme="dark"] .back-btn {
+            background: rgba(30, 41, 59, 0.9);
+        }
+        
+        .back-btn:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .theme-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        [data-theme="dark"] .theme-btn {
+            background: rgba(30, 41, 59, 0.9);
+        }
+        
+        .theme-btn:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .password-toggle {
+            position: relative;
+        }
+        
+        .password-toggle-btn {
+            position: absolute;
+            right: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            cursor: pointer;
+            padding: 4px;
+        }
+        
+        /* Profile View (when logged in) */
+        .profile-section {
+            display: none;
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #14b8a6);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 20px;
+            font-size: 2rem;
+            color: white;
+        }
+        
+        .profile-name {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            text-align: center;
+            margin-bottom: 4px;
+        }
+        
+        .profile-email {
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 24px;
+        }
+        
+        .profile-info {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        
+        .profile-info-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .profile-info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .profile-info-label {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+        
+        .profile-info-value {
+            color: var(--text-primary);
+            font-weight: 600;
+            font-size: 0.9rem;
+        }
+        
+        .profile-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .profile-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+            text-decoration: none;
+        }
+        
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+        }
+        
+        .btn-danger {
+            background: white;
+            color: #ef4444;
+            border: 2px solid #ef4444;
+        }
+        
+        [data-theme="dark"] .btn-danger {
+            background: #1e293b;
+        }
+        
+        @media (max-width: 480px) {
+            .auth-card {
+                padding: 24px;
+            }
+            
+            .auth-title {
+                font-size: 1.3rem;
+            }
+            
+            .profile-actions {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+    <a href="index.html" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+    </a>
+    
+    <button class="theme-btn" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </button>
+    
+    <div class="auth-page">
+        <div class="auth-card">
+            <!-- Login Form (shown if not logged in) -->
+            <div id="login-section">
+                <div class="auth-header">
+                    <div class="auth-icon">
+                        <i class="fas fa-user"></i>
+                    </div>
+                    <h1 class="auth-title">Welcome Back</h1>
+                    <p class="auth-subtitle">Login to your Civic Sense account</p>
+                </div>
+                
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-envelope"></i> Email Address
+                        </label>
+                        <input type="email" id="loginEmail" class="form-input" placeholder="your@email.com" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">
+                            <i class="fas fa-lock"></i> Password
+                        </label>
+                        <div class="password-toggle">
+                            <input type="password" id="loginPassword" class="form-input" placeholder="Enter your password" required>
+                            <button type="button" class="password-toggle-btn" onclick="toggleLoginPassword()">
+                                <i class="fas fa-eye"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="auth-btn">
+                        <i class="fas fa-sign-in-alt"></i>
+                        Login
+                    </button>
+                </form>
+                
+                <div class="auth-footer">
+                    Don't have an account? <a href="create-account.html">Create Account</a>
+                </div>
+            </div>
+            
+            <!-- Profile View (shown if logged in) -->
+            <div id="profile-section" class="profile-section">
+                <div class="profile-avatar" id="profileAvatar">
+                    <i class="fas fa-user"></i>
+                </div>
+                
+                <h2 class="profile-name" id="profileName"></h2>
+                <p class="profile-email" id="profileEmail"></p>
+                
+                <div class="profile-info">
+                    <div class="profile-info-row">
+                        <span class="profile-info-label"><i class="fas fa-phone"></i> Phone</span>
+                        <span class="profile-info-value" id="profilePhone"></span>
+                    </div>
+                    <div class="profile-info-row">
+                        <span class="profile-info-label"><i class="fas fa-city"></i> City</span>
+                        <span class="profile-info-value" id="profileCity"></span>
+                    </div>
+                    <div class="profile-info-row">
+                        <span class="profile-info-label"><i class="fas fa-hashtag"></i> Pincode</span>
+                        <span class="profile-info-value" id="profilePincode"></span>
+                    </div>
+                </div>
+                
+                <div class="profile-actions">
+                    <a href="dashboard.html" class="profile-btn btn-primary">
+                        <i class="fas fa-home"></i>
+                        Dashboard
+                    </a>
+                    <button onclick="logout()" class="profile-btn btn-danger">
+                        <i class="fas fa-sign-out-alt"></i>
+                        Logout
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="toast-container" id="toast-container"></div>
+    
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('civicTheme');
+        
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.querySelector('i').className = 'fas fa-sun';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+            themeToggle.querySelector('i').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('civicTheme', isDark ? 'light' : 'dark');
+        });
+        
+        // Check if already logged in
+        const currentUser = localStorage.getItem('civicUser');
+        
+        if (currentUser) {
+            const user = JSON.parse(currentUser);
+            showProfile(user);
+        }
+        
+        function showProfile(user) {
+            document.getElementById('login-section').style.display = 'none';
+            document.getElementById('profile-section').style.display = 'block';
+            
+            document.getElementById('profileName').textContent = user.name;
+            document.getElementById('profileEmail').textContent = user.email;
+            document.getElementById('profilePhone').textContent = user.phone || 'Not set';
+            document.getElementById('profileCity').textContent = user.city || 'Not set';
+            document.getElementById('profilePincode').textContent = user.pincode || 'Not set';
+            
+            // Set avatar initial
+            const initial = user.name.charAt(0).toUpperCase();
+            document.getElementById('profileAvatar').innerHTML = initial;
+        }
+        
+        // Login Form
+        document.getElementById('loginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const email = document.getElementById('loginEmail').value.trim();
+            const password = document.getElementById('loginPassword').value;
+            
+            // Get users from localStorage
+            const users = JSON.parse(localStorage.getItem('civicUsers') || '[]');
+            
+            // Find user
+            const user = users.find(u => u.email === email && u.password === password);
+            
+            if (user) {
+                // Set current user
+                localStorage.setItem('civicUser', JSON.stringify(user));
+                showToast('Login successful!', 'success');
+                
+                setTimeout(() => {
+                    window.location.href = 'dashboard.html';
+                }, 1000);
+            } else {
+                showToast('Invalid email or password', 'error');
+            }
+        });
+        
+        // Toggle Password
+        function toggleLoginPassword() {
+            const passwordInput = document.getElementById('loginPassword');
+            const icon = document.querySelector('.password-toggle-btn i');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                passwordInput.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+        
+        // Logout
+        function logout() {
+            localStorage.removeItem('civicUser');
+            showToast('Logged out successfully', 'success');
+            setTimeout(() => {
+                window.location.reload();
+            }, 1000);
+        }
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+    </script>
+</body>
+</html>

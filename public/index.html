@@ -1,35 +1,299 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Civic Sense</title>
-    <link rel="stylesheet" href="civic.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Sense - Welcome</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="common-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .landing-page {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .landing-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 24px;
+            padding: 48px;
+            max-width: 450px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+        }
+        
+        [data-theme="dark"] .landing-card {
+            background: rgba(30, 41, 59, 0.95);
+        }
+        
+        .landing-logo {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, #3b82f6, #14b8a6);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 24px;
+            font-size: 2rem;
+            color: white;
+            box-shadow: 0 10px 25px rgba(59, 130, 246, 0.3);
+        }
+        
+        .landing-title {
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .landing-subtitle {
+            color: var(--text-secondary);
+            margin-bottom: 32px;
+            font-size: 1rem;
+        }
+        
+        .landing-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            width: 100%;
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            margin-bottom: 16px;
+        }
+        
+        .btn-login {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.3);
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(59, 130, 246, 0.4);
+        }
+        
+        .btn-create {
+            background: white;
+            color: #3b82f6;
+            border: 2px solid #3b82f6;
+        }
+        
+        [data-theme="dark"] .btn-create {
+            background: #1e293b;
+        }
+        
+        .btn-create:hover {
+            background: #eff6ff;
+            transform: translateY(-2px);
+        }
+        
+        .landing-divider {
+            display: flex;
+            align-items: center;
+            margin: 24px 0;
+            color: var(--text-muted);
+        }
+        
+        .landing-divider::before,
+        .landing-divider::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: var(--border-color);
+        }
+        
+        .landing-divider span {
+            padding: 0 16px;
+            font-size: 0.85rem;
+        }
+        
+        .guest-link {
+            color: var(--text-secondary);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: color 0.2s;
+        }
+        
+        .guest-link:hover {
+            color: #3b82f6;
+        }
+        
+        .theme-btn {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 44px;
+            height: 44px;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1rem;
+            transition: all 0.2s;
+        }
+        
+        [data-theme="dark"] .theme-btn {
+            background: rgba(30, 41, 59, 0.9);
+        }
+        
+        .theme-btn:hover {
+            background: #3b82f6;
+            color: white;
+        }
+        
+        .user-info {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 24px;
+            text-align: left;
+        }
+        
+        .user-info h4 {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            margin-bottom: 8px;
+        }
+        
+        .user-info p {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+        
+        .user-info .user-email {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+        }
+        
+        @media (max-width: 480px) {
+            .landing-card {
+                padding: 32px 24px;
+            }
+            
+            .landing-title {
+                font-size: 1.6rem;
+            }
+            
+            .landing-logo {
+                width: 64px;
+                height: 64px;
+                font-size: 1.5rem;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>Welcome to Civic Sense</h1>
-            <p>Promoting awareness and responsibility in our community</p>
-        </header>
-        <main>
-      
-            <section>
-                <h2>About Civic Sense</h2>
-                <p>This website aims to educate and engage citizens on important civic issues, encourage community participation, and provide tools to report and solve local problems.</p>
-            </section>
-            <section>
-                <h2>What is Civic Sense?</h2>
-                <p>Civic sense refers to the awareness, responsibility, and behavior of individuals towards their community and society at large. It encompasses understanding one's rights and duties as a citizen, respecting public property, following laws and regulations, and actively participating in community welfare. A strong civic sense promotes harmony, cleanliness, safety, and overall development of the society. It encourages people to be mindful of their actions and their impact on others, fostering a culture of respect, cooperation, and social responsibility.</p>
-                <p>Having civic sense means being considerate in public spaces, such as not littering, obeying traffic rules, helping others in need, and contributing positively to the community. It is essential for building a healthy, sustainable, and progressive society where everyone can thrive.</p>
-            </section>
-        </main>
-        <footer>
-            &copy; 2024 Civic Sense. All rights reserved.
-        </footer>
-        <div class="start-button-container">
-            <a href="main.html" class="start-button">Get To Start</a>
+    <button class="theme-btn" id="theme-toggle">
+        <i class="fas fa-moon"></i>
+    </button>
+    
+    <div class="landing-page">
+        <div class="landing-card">
+            <div class="landing-logo">
+                <i class="fas fa-city"></i>
+            </div>
+            
+            <h1 class="landing-title">Civic Sense</h1>
+            <p class="landing-subtitle">Improve Your City, One Report at a Time</p>
+            
+            <!-- User Info (shown if logged in) -->
+            <div id="user-info-section" style="display: none;">
+                <div class="user-info">
+                    <h4>Welcome back!</h4>
+                    <p id="user-name"></p>
+                    <p class="user-email" id="user-email"></p>
+                </div>
+                
+                <a href="dashboard.html" class="landing-btn btn-login">
+                    <i class="fas fa-arrow-right"></i>
+                    Go to Dashboard
+                </a>
+                
+                <button onclick="logout()" class="landing-btn btn-create">
+                    <i class="fas fa-sign-out-alt"></i>
+                    Logout
+                </button>
+            </div>
+            
+            <!-- Login/Create (shown if not logged in) -->
+            <div id="auth-section">
+                <a href="user-profile.html" class="landing-btn btn-login" id="login-btn">
+                    <i class="fas fa-sign-in-alt"></i>
+                    Login
+                </a>
+                
+                <a href="create-account.html" class="landing-btn btn-create">
+                    <i class="fas fa-user-plus"></i>
+                    Create Account
+                </a>
+                
+                <div class="landing-divider">
+                    <span>or</span>
+                </div>
+                
+                <a href="dashboard.html" class="guest-link">
+                    <i class="fas fa-eye"></i> Continue as Guest
+                </a>
+            </div>
         </div>
     </div>
+    
+    <script>
+        // Theme Toggle
+        const themeToggle = document.getElementById('theme-toggle');
+        const savedTheme = localStorage.getItem('civicTheme');
+        
+        if (savedTheme === 'dark') {
+            document.documentElement.setAttribute('data-theme', 'dark');
+            themeToggle.querySelector('i').className = 'fas fa-sun';
+        }
+        
+        themeToggle.addEventListener('click', () => {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+            themeToggle.querySelector('i').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('civicTheme', isDark ? 'light' : 'dark');
+        });
+        
+        // Check if user is logged in
+        const currentUser = localStorage.getItem('civicUser');
+        
+        if (currentUser) {
+            const user = JSON.parse(currentUser);
+            document.getElementById('user-info-section').style.display = 'block';
+            document.getElementById('auth-section').style.display = 'none';
+            document.getElementById('user-name').textContent = user.name;
+            document.getElementById('user-email').textContent = user.email;
+        } else {
+            document.getElementById('user-info-section').style.display = 'none';
+            document.getElementById('auth-section').style.display = 'block';
+        }
+        
+        function logout() {
+            localStorage.removeItem('civicUser');
+            window.location.reload();
+        }
+    </script>
 </body>
 </html>
