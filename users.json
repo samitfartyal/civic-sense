@@ -1,34 +1,18 @@
 [
   {
+    "name": "Samit Fartyal",
+    "email": "samitfartyal@gmail.com",
+    "pincode": "250001",
+    "phone": "9456802538",
+    "gender": "Male",
+    "submittedAt": "2026-03-25T20:00:00.000Z"
+  },
+  {
     "name": "sam bhai",
     "email": "bsam47505@gmail.com",
     "pincode": "250001",
     "phone": "9456802538",
     "gender": "male",
     "submittedAt": "2026-03-25T16:18:18.300Z"
-  },
-  {
-    "name": "sam bhai",
-    "email": "bsam47505@gmail.com",
-    "pincode": "250001",
-    "phone": "8686564658",
-    "gender": "male",
-    "submittedAt": "2026-03-25T16:59:20.952Z"
-  },
-  {
-    "name": "sam bhai",
-    "email": "bsam47505@gmail.com",
-    "pincode": "154151",
-    "phone": "9456802538",
-    "gender": "male",
-    "submittedAt": "2026-03-25T17:00:11.810Z"
-  },
-  {
-    "name": "sam bhai",
-    "email": "bsam47505@gmail.com",
-    "pincode": "250001",
-    "phone": "9456802538",
-    "gender": "female",
-    "submittedAt": "2026-03-25T17:38:39.332Z"
   }
 ]

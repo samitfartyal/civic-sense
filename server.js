@@ -91,15 +91,28 @@ function writeUserData(data) {
 
 app.post('/submit-form', (req, res) => {
   const { name, email, pincode, phone, gender } = req.body;
-  if (!name || !email || !pincode || !phone || !gender) {
-    return res.status(400).json({ error: 'All fields are required' });
+  if (!name || !email || !pincode || !phone) {
+    return res.status(400).json({ error: 'Name, email, pincode and phone are required' });
   }
   const users = readUserData();
-  const user = { name, email, pincode, phone, gender, submittedAt: new Date() };
+  const user = { 
+    name, 
+    email, 
+    pincode, 
+    phone, 
+    gender: gender || 'Not specified', 
+    submittedAt: new Date().toISOString() 
+  };
   users.push(user);
   writeUserData(users);
   console.log('User data received and stored:', user);
   res.json({ message: 'Form submitted successfully', user });
+});
+
+// Get all users
+app.get('/api/users', (req, res) => {
+  const users = readUserData();
+  res.json(users);
 });
 
 /* ==================== POSTS HANDLING ==================== */
