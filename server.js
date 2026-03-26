@@ -321,7 +321,7 @@ app.get('/reels', (req, res) => {
   res.json(reels);
 });
 
-app.post('/reels', upload.single('video'), (req, res) => {
+app.post('/reels', (req, res) => {
   const { title, author, date, description } = req.body;
   if (!title || !author || !date || !description) {
     return res.status(400).json({ error: 'All reel fields are required' });
@@ -332,7 +332,7 @@ app.post('/reels', upload.single('video'), (req, res) => {
     author, 
     date, 
     description,
-    videoUrl: req.file ? `/uploads/${req.file.filename}` : null
+    videoUrl: req.body.videoUrl || null
   };
   reels.push(newReel);
   writeReelsData(reels);
@@ -385,7 +385,7 @@ async function writeCommentsData(data) {
   }
 }
 
-app.post('/reports', reportsUpload.array('photos', 10), (req, res) => {
+app.post('/reports', (req, res) => {
   const { title, description, contactName, contactEmail } = req.body;
   if (!title || !description || !contactName || !contactEmail) {
     return res.status(400).json({ error: 'All report fields are required' });
@@ -398,7 +398,7 @@ app.post('/reports', reportsUpload.array('photos', 10), (req, res) => {
     description,
     contactName,
     contactEmail,
-    photos: req.files ? req.files.map(file => `/uploads/${file.filename}`) : [],
+    photos: req.body.photos || [],
     submittedAt: new Date()
   };
 
