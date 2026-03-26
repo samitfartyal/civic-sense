@@ -770,9 +770,21 @@ app.post('/api/chat', async (req, res) => {
       return res.status(400).json({ error: 'Message is required' });
     }
     
+    // Check if OpenAI is available
+    if (!openai || !process.env.OPENAI_API_KEY) {
+      // Provide smart fallback responses
+      const fallbackResponse = getFallbackResponse(message);
+      return res.json({ response: fallbackResponse });
+    }
+    
     // Get current news context
-    const news = await fetchNewsFromAPI();
-    const newsContext = news.slice(0, 5).map(a => `- ${a.title}: ${a.description}`).join('\n');
+    let newsContext = '';
+    try {
+      const news = await fetchNewsFromAPI();
+      newsContext = news.slice(0, 5).map(a => `- ${a.title}`).join('\n');
+    } catch (e) {
+      newsContext = 'Unable to fetch current news.';
+    }
     
     const response = await openai.chat.completions.create({
       model: 'gpt-3.5-turbo',
@@ -784,7 +796,7 @@ app.post('/api/chat', async (req, res) => {
 Current news context:
 ${newsContext}
 
-Provide helpful, concise responses. If asked to summarize an article, provide key points in bullet form.`
+Provide helpful, concise responses.`
         },
         { role: 'user', content: message }
       ],
@@ -794,9 +806,53 @@ Provide helpful, concise responses. If asked to summarize an article, provide ke
     res.json({ response: response.choices[0].message.content.trim() });
   } catch (error) {
     console.error('Chat error:', error);
-    res.json({ response: "I'm sorry, I'm having trouble processing your request right now. Please try again later." });
+    const fallbackResponse = getFallbackResponse(req.body.message);
+    res.json({ response: fallbackResponse });
   }
 });
+
+// Fallback responses when OpenAI is not available
+function getFallbackResponse(message) {
+  const lowerMessage = message.toLowerCase();
+  
+  // Greeting responses
+  if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+    return "Hello! 👋 Welcome to Civic Sense! I'm here to help you with civic issues and news. You can ask me about:\n\n• Reporting civic issues\n• Finding news on specific topics\n• Understanding how to use the platform\n\nHow can I assist you today?";
+  }
+  
+  // Help responses
+  if (lowerMessage.includes('help') || lowerMessage.includes('what can you do')) {
+    return "I can help you with:\n\n📝 **Report Issues**: Go to the Report page to submit civic issues like potholes, garbage, etc.\n\n📰 **News**: Check the News page for latest updates\n\n📍 **Location**: Use location detection when reporting issues\n\n📊 **Dashboard**: View all reported issues and their status\n\nWould you like help with any of these?";
+  }
+  
+  // Report related
+  if (lowerMessage.includes('report') || lowerMessage.includes('issue') || lowerMessage.includes('problem')) {
+    return "To report a civic issue:\n\n1. Click on 'Report' in the navigation\n2. Select the issue type (pothole, garbage, etc.)\n3. Add a description and location\n4. Upload photos if available\n5. Submit your report\n\nYour report will be tracked and you'll be notified of updates!";
+  }
+  
+  // News related
+  if (lowerMessage.includes('news') || lowerMessage.includes('latest') || lowerMessage.includes('update')) {
+    return "📰 Check out our News section for the latest updates! You can:\n\n• Browse trending news\n• Search for specific topics\n• Filter by category (Tech, Politics, Sports, etc.)\n• Save articles for later\n\nVisit the News page to stay informed!";
+  }
+  
+  // Location related
+  if (lowerMessage.includes('location') || lowerMessage.includes('where')) {
+    return "📍 When reporting issues, you can:\n\n• Enter the address manually\n• Use 'Detect My Location' button for automatic detection\n• Add landmarks for better identification\n\nThis helps authorities locate and fix the issue faster!";
+  }
+  
+  // Status related
+  if (lowerMessage.includes('status') || lowerMessage.includes('track')) {
+    return "📊 To track your reported issues:\n\n1. Go to the Dashboard\n2. Check the 'Recent Issues' section\n3. Filter by status: Reported, In Progress, or Resolved\n\nYou can also upvote issues to increase their priority!";
+  }
+  
+  // Thank you
+  if (lowerMessage.includes('thank') || lowerMessage.includes('thanks')) {
+    return "You're welcome! 😊 If you need any more help, feel free to ask. Together, we can make our city better!";
+  }
+  
+  // Default response
+  return "I'm your Civic Sense assistant! Here's what I can help with:\n\n• **Report Issues** - Submit civic problems\n• **Find News** - Browse latest updates\n• **Track Status** - Check your reports\n• **Get Help** - Learn how to use the platform\n\nWhat would you like to know more about?";
+}
 
 // Helper function to detect article category
 function detectArticleCategory(article) {
