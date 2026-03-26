@@ -23,8 +23,11 @@ app.use(cors());
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 
-//  Serve static files
-app.use(express.static(__dirname));
+//  Serve static files from public folder (Vercel) or root (local)
+const staticPath = process.env.NODE_ENV === 'production' 
+  ? path.join(__dirname, 'public') 
+  : __dirname;
+app.use(express.static(staticPath));
 
 // In-memory storage for serverless (Vercel doesn't persist files)
 const inMemoryData = {
@@ -39,16 +42,28 @@ const inMemoryData = {
 
 // Root route - serve dashboard
 app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'dashboard.html'));
+  res.sendFile(path.join(staticPath, 'dashboard.html'));
 });
 
 // Explicit routes to serve posts.html and reel.html
 app.get('/posts.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'posts.html'));
+  res.sendFile(path.join(staticPath, 'posts.html'));
 });
 
 app.get('/reels.html', (req, res) => {
-  res.sendFile(path.join(__dirname, 'reels.html'));
+  res.sendFile(path.join(staticPath, 'reels.html'));
+});
+
+app.get('/dashboard.html', (req, res) => {
+  res.sendFile(path.join(staticPath, 'dashboard.html'));
+});
+
+app.get('/report.html', (req, res) => {
+  res.sendFile(path.join(staticPath, 'report.html'));
+});
+
+app.get('/news.html', (req, res) => {
+  res.sendFile(path.join(staticPath, 'news.html'));
 });
 
 /* ==================== USER FORM HANDLING ==================== */

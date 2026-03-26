@@ -12,28 +12,8 @@
       "dest": "server.js"
     },
     {
-      "src": "/posts",
-      "methods": ["GET", "POST", "PUT"],
-      "dest": "server.js"
-    },
-    {
-      "src": "/reels",
-      "methods": ["GET", "POST"],
-      "dest": "server.js"
-    },
-    {
-      "src": "/reports",
-      "methods": ["GET", "POST"],
-      "dest": "server.js"
-    },
-    {
-      "src": "/submit-form",
-      "methods": ["POST"],
-      "dest": "server.js"
-    },
-    {
       "src": "/(.*)",
-      "dest": "/public/$1"
+      "dest": "server.js"
     }
   ]
 }
