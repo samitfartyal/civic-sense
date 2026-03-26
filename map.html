@@ -1,0 +1,983 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Civic Sense - Issue Map</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link rel="stylesheet" href="common-styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        .map-page {
+            padding-top: 80px;
+            min-height: 100vh;
+        }
+        
+        .map-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 20px 40px;
+        }
+        
+        .map-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+        
+        .map-title-section h1 {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 4px;
+        }
+        
+        .map-title-section p {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 0.95rem;
+        }
+        
+        .time-filters {
+            display: flex;
+            gap: 8px;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 6px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        [data-theme="dark"] .time-filters {
+            background: rgba(30, 41, 59, 0.95);
+        }
+        
+        .time-filter-btn {
+            padding: 10px 18px;
+            border: none;
+            background: transparent;
+            color: var(--text-secondary);
+            font-size: 0.85rem;
+            font-weight: 600;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .time-filter-btn:hover {
+            background: var(--bg-tertiary);
+        }
+        
+        .time-filter-btn.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+        }
+        
+        .map-content {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 24px;
+        }
+        
+        .map-wrapper {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            height: 600px;
+        }
+        
+        [data-theme="dark"] .map-wrapper {
+            background: rgba(30, 41, 59, 0.95);
+        }
+        
+        #issue-map {
+            height: 100%;
+            width: 100%;
+        }
+        
+        .map-sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        
+        .sidebar-card {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        [data-theme="dark"] .sidebar-card {
+            background: rgba(30, 41, 59, 0.95);
+        }
+        
+        .sidebar-card h3 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .sidebar-card h3 i {
+            color: #3b82f6;
+        }
+        
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+        
+        .stat-box {
+            text-align: center;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+        }
+        
+        .stat-value {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            margin-top: 2px;
+        }
+        
+        .stat-box.reported .stat-value { color: #ef4444; }
+        .stat-box.progress .stat-value { color: #f59e0b; }
+        .stat-box.resolved .stat-value { color: #22c55e; }
+        
+        .issues-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .issue-item {
+            display: flex;
+            gap: 12px;
+            padding: 12px;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            margin-bottom: 10px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .issue-item:hover {
+            transform: translateX(4px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .issue-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.9rem;
+            flex-shrink: 0;
+        }
+        
+        .issue-icon.reported { background: #ef4444; }
+        .issue-icon.progress { background: #f59e0b; }
+        .issue-icon.resolved { background: #22c55e; }
+        
+        .issue-details {
+            flex: 1;
+            min-width: 0;
+        }
+        
+        .issue-details h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .issue-details p {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+        
+        .issue-time {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+        }
+        
+        .add-issue-btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #3b82f6, #14b8a6);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            transition: all 0.3s;
+        }
+        
+        .add-issue-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(59, 130, 246, 0.4);
+        }
+        
+        /* Map Markers */
+        .custom-marker {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            border: 3px solid white;
+        }
+        
+        .marker-reported { background: #ef4444; }
+        .marker-progress { background: #f59e0b; }
+        .marker-resolved { background: #22c55e; }
+        
+        /* Map Popup */
+        .map-popup {
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .map-popup h4 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #1e293b;
+        }
+        
+        .map-popup p {
+            font-size: 0.85rem;
+            color: #64748b;
+            margin-bottom: 4px;
+        }
+        
+        .map-popup .status-badge {
+            display: inline-block;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-top: 8px;
+        }
+        
+        .status-reported { background: #fef2f2; color: #ef4444; }
+        .status-progress { background: #fffbeb; color: #f59e0b; }
+        .status-resolved { background: #f0fdf4; color: #22c55e; }
+        
+        /* Add Issue Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal-overlay.show {
+            display: flex;
+        }
+        
+        .modal-content {
+            background: var(--bg-primary);
+            border-radius: 20px;
+            padding: 32px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        
+        .modal-header h2 {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+        
+        .modal-close {
+            width: 36px;
+            height: 36px;
+            border: none;
+            background: var(--bg-secondary);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 8px;
+        }
+        
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px 14px;
+            font-size: 0.95rem;
+            border: 2px solid var(--border-color);
+            border-radius: 10px;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+        
+        .form-textarea {
+            min-height: 80px;
+            resize: vertical;
+        }
+        
+        .form-input:focus, .form-select:focus, .form-textarea:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+        
+        .location-info {
+            background: var(--bg-secondary);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 16px;
+        }
+        
+        .location-info p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+        
+        .location-info strong {
+            color: var(--text-primary);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 12px;
+            margin-top: 24px;
+        }
+        
+        .modal-btn {
+            flex: 1;
+            padding: 14px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        .btn-cancel {
+            background: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: none;
+        }
+        
+        .btn-submit {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            border: none;
+        }
+        
+        @media (max-width: 992px) {
+            .map-content {
+                grid-template-columns: 1fr;
+            }
+            
+            .map-wrapper {
+                height: 400px;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .map-header {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+            
+            .time-filters {
+                width: 100%;
+                overflow-x: auto;
+            }
+            
+            .time-filter-btn {
+                padding: 8px 14px;
+                font-size: 0.8rem;
+            }
+            
+            .stats-row {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="main-nav">
+        <div class="nav-container">
+            <a href="dashboard.html" class="nav-brand">
+                <div class="brand-icon">
+                    <i class="fas fa-city"></i>
+                </div>
+                <span class="brand-text">Civic Sense</span>
+            </a>
+            
+            <div class="nav-links">
+                <a href="dashboard.html" class="nav-link"><i class="fas fa-home"></i> Home</a>
+                <a href="report.html" class="nav-link"><i class="fas fa-exclamation-circle"></i> Report</a>
+                <a href="posts.html" class="nav-link"><i class="fas fa-images"></i> Posts</a>
+                <a href="map.html" class="nav-link active"><i class="fas fa-map-marked-alt"></i> Map</a>
+                <a href="news.html" class="nav-link"><i class="fas fa-newspaper"></i> News</a>
+            </div>
+            
+            <div class="nav-actions">
+                <button class="theme-toggle" id="theme-toggle" title="Toggle Dark Mode">
+                    <i class="fas fa-moon"></i>
+                </button>
+            </div>
+            
+            <button class="mobile-menu-btn" id="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Mobile Navigation -->
+    <nav class="mobile-nav hidden" id="mobile-nav">
+        <a href="dashboard.html" class="mobile-nav-link"><i class="fas fa-home"></i> Home</a>
+        <a href="report.html" class="mobile-nav-link"><i class="fas fa-exclamation-circle"></i> Report</a>
+        <a href="map.html" class="mobile-nav-link active"><i class="fas fa-map"></i> Map</a>
+        <a href="posts.html" class="mobile-nav-link"><i class="fas fa-images"></i> Posts</a>
+        <a href="news.html" class="mobile-nav-link"><i class="fas fa-newspaper"></i> News</a>
+    </nav>
+
+    <div class="map-page">
+        <div class="map-container">
+            <div class="map-header">
+                <div class="map-title-section">
+                    <h1><i class="fas fa-map-marked-alt"></i> Issue Map</h1>
+                    <p>View and report civic issues in your area</p>
+                </div>
+                
+                <div class="time-filters">
+                    <button class="time-filter-btn active" data-hours="24">
+                        <i class="fas fa-clock"></i> 24 Hours
+                    </button>
+                    <button class="time-filter-btn" data-hours="168">
+                        <i class="fas fa-calendar-week"></i> 7 Days
+                    </button>
+                    <button class="time-filter-btn" data-hours="720">
+                        <i class="fas fa-calendar-alt"></i> 30 Days
+                    </button>
+                    <button class="time-filter-btn" data-hours="0">
+                        <i class="fas fa-globe"></i> All Time
+                    </button>
+                </div>
+            </div>
+            
+            <div class="map-content">
+                <div class="map-wrapper">
+                    <div id="issue-map"></div>
+                </div>
+                
+                <div class="map-sidebar">
+                    <div class="sidebar-card">
+                        <h3><i class="fas fa-chart-pie"></i> Issue Statistics</h3>
+                        <div class="stats-row">
+                            <div class="stat-box reported">
+                                <div class="stat-value" id="reported-count">0</div>
+                                <div class="stat-label">Reported</div>
+                            </div>
+                            <div class="stat-box progress">
+                                <div class="stat-value" id="progress-count">0</div>
+                                <div class="stat-label">In Progress</div>
+                            </div>
+                            <div class="stat-box resolved">
+                                <div class="stat-value" id="resolved-count">0</div>
+                                <div class="stat-label">Resolved</div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar-card">
+                        <h3><i class="fas fa-list"></i> Recent Issues</h3>
+                        <div class="issues-list" id="issues-list">
+                            <!-- Issues will be populated here -->
+                        </div>
+                    </div>
+                    
+                    <button class="add-issue-btn" onclick="openAddIssueModal()">
+                        <i class="fas fa-plus"></i>
+                        Add Issue at My Location
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Issue Modal -->
+    <div class="modal-overlay" id="add-issue-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fas fa-map-pin"></i> Add New Issue</h2>
+                <button class="modal-close" onclick="closeAddIssueModal()">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            
+            <form id="add-issue-form">
+                <div class="location-info" id="location-info">
+                    <p><i class="fas fa-spinner fa-spin"></i> Detecting your location...</p>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-exclamation-circle"></i> Issue Type
+                    </label>
+                    <select id="issue-type" class="form-select" required>
+                        <option value="">Select issue type...</option>
+                        <option value="pothole">🛣️ Pothole / Road Damage</option>
+                        <option value="garbage">🗑️ Garbage / Waste</option>
+                        <option value="streetlight">💡 Broken Street Light</option>
+                        <option value="water">💧 Water Leakage</option>
+                        <option value="drainage">🚰 Blocked Drainage</option>
+                        <option value="traffic">🚦 Traffic Signal Issue</option>
+                        <option value="construction">🏗️ Illegal Construction</option>
+                        <option value="trees">🌳 Fallen Tree</option>
+                        <option value="stray">🐕 Stray Animals</option>
+                        <option value="other">📝 Other</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-heading"></i> Title
+                    </label>
+                    <input type="text" id="issue-title" class="form-input" placeholder="Brief description..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">
+                        <i class="fas fa-align-left"></i> Details
+                    </label>
+                    <textarea id="issue-details" class="form-textarea" placeholder="Describe the issue in detail..."></textarea>
+                </div>
+                
+                <div class="modal-actions">
+                    <button type="button" class="modal-btn btn-cancel" onclick="closeAddIssueModal()">
+                        Cancel
+                    </button>
+                    <button type="submit" class="modal-btn btn-submit">
+                        <i class="fas fa-check"></i> Add Issue
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // State
+        let map;
+        let markers = [];
+        let userLocation = null;
+        let currentFilter = 24;
+        
+        // Sample issues data (in real app, this would come from server)
+        let issuesData = [
+            { id: 1, type: 'pothole', title: 'Large Pothole on Main Road', lat: 28.6139, lng: 77.2090, status: 'reported', time: Date.now() - 3600000, details: 'Deep pothole causing traffic issues' },
+            { id: 2, type: 'garbage', title: 'Garbage Dump Near Park', lat: 28.6129, lng: 77.2295, status: 'progress', time: Date.now() - 86400000, details: 'Uncollected waste for 3 days' },
+            { id: 3, type: 'streetlight', title: 'Broken Street Light', lat: 28.6289, lng: 77.2090, status: 'resolved', time: Date.now() - 172800000, details: 'Light fixed by municipal team' },
+            { id: 4, type: 'water', title: 'Water Leakage', lat: 28.6199, lng: 77.2390, status: 'reported', time: Date.now() - 7200000, details: 'Continuous water leak' },
+            { id: 5, type: 'traffic', title: 'Traffic Signal Not Working', lat: 28.6329, lng: 77.2190, status: 'progress', time: Date.now() - 43200000, details: 'Signal broken for 2 days' },
+        ];
+        
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            initMap();
+            setupEventListeners();
+            loadTheme();
+        });
+        
+        function initMap() {
+            // Initialize map centered on Delhi
+            map = L.map('issue-map').setView([28.6139, 77.2090], 12);
+            
+            // Add OpenStreetMap tiles
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; OpenStreetMap contributors'
+            }).addTo(map);
+            
+            // Load issues
+            loadIssues();
+            
+            // Try to get user location
+            getUserLocation();
+        }
+        
+        function setupEventListeners() {
+            // Theme Toggle
+            document.getElementById('theme-toggle').addEventListener('click', toggleDarkMode);
+            
+            // Mobile Menu
+            document.getElementById('mobile-menu-btn').addEventListener('click', () => {
+                document.getElementById('mobile-nav').classList.toggle('hidden');
+            });
+            
+            // Time Filters
+            document.querySelectorAll('.time-filter-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.time-filter-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentFilter = parseInt(btn.dataset.hours);
+                    loadIssues();
+                });
+            });
+            
+            // Add Issue Form
+            document.getElementById('add-issue-form').addEventListener('submit', handleAddIssue);
+        }
+        
+        function getUserLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        userLocation = {
+                            lat: position.coords.latitude,
+                            lng: position.coords.longitude
+                        };
+                        
+                        // Add user marker
+                        const userIcon = L.divIcon({
+                            className: 'user-marker',
+                            html: '<div style="width: 20px; height: 20px; background: #3b82f6; border: 3px solid white; border-radius: 50%; box-shadow: 0 2px 10px rgba(59,130,246,0.5);"></div>',
+                            iconSize: [20, 20]
+                        });
+                        
+                        L.marker([userLocation.lat, userLocation.lng], { icon: userIcon })
+                            .addTo(map)
+                            .bindPopup('You are here');
+                        
+                        // Center map on user location
+                        map.setView([userLocation.lat, userLocation.lng], 14);
+                    },
+                    (error) => {
+                        console.log('Location access denied');
+                    }
+                );
+            }
+        }
+        
+        function loadIssues() {
+            // Clear existing markers
+            markers.forEach(marker => map.removeLayer(marker));
+            markers = [];
+            
+            // Filter issues by time
+            const now = Date.now();
+            let filteredIssues = issuesData;
+            
+            if (currentFilter > 0) {
+                const cutoff = now - (currentFilter * 60 * 60 * 1000);
+                filteredIssues = issuesData.filter(issue => issue.time >= cutoff);
+            }
+            
+            // Add markers
+            filteredIssues.forEach(issue => {
+                const marker = createMarker(issue);
+                markers.push(marker);
+            });
+            
+            // Update stats
+            updateStats(filteredIssues);
+            
+            // Update sidebar list
+            updateIssuesList(filteredIssues);
+        }
+        
+        function createMarker(issue) {
+            const iconClass = issue.status === 'reported' ? 'marker-reported' : 
+                             issue.status === 'progress' ? 'marker-progress' : 'marker-resolved';
+            
+            const icons = {
+                pothole: 'fa-road',
+                garbage: 'fa-trash',
+                streetlight: 'fa-lightbulb',
+                water: 'fa-tint',
+                drainage: 'fa-water',
+                traffic: 'fa-traffic-light',
+                construction: 'fa-building',
+                trees: 'fa-tree',
+                stray: 'fa-paw',
+                other: 'fa-exclamation'
+            };
+            
+            const icon = L.divIcon({
+                className: 'custom-marker-wrapper',
+                html: `<div class="custom-marker ${iconClass}"><i class="fas ${icons[issue.type] || 'fa-exclamation'}"></i></div>`,
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
+            });
+            
+            const marker = L.marker([issue.lat, issue.lng], { icon })
+                .addTo(map)
+                .bindPopup(`
+                    <div class="map-popup">
+                        <h4>${issue.title}</h4>
+                        <p>${issue.details}</p>
+                        <p><i class="fas fa-clock"></i> ${getTimeAgo(issue.time)}</p>
+                        <span class="status-badge status-${issue.status}">${issue.status === 'reported' ? 'Reported' : issue.status === 'progress' ? 'In Progress' : 'Resolved'}</span>
+                    </div>
+                `);
+            
+            return marker;
+        }
+        
+        function updateStats(issues) {
+            const reported = issues.filter(i => i.status === 'reported').length;
+            const progress = issues.filter(i => i.status === 'progress').length;
+            const resolved = issues.filter(i => i.status === 'resolved').length;
+            
+            document.getElementById('reported-count').textContent = reported;
+            document.getElementById('progress-count').textContent = progress;
+            document.getElementById('resolved-count').textContent = resolved;
+        }
+        
+        function updateIssuesList(issues) {
+            const list = document.getElementById('issues-list');
+            
+            if (issues.length === 0) {
+                list.innerHTML = '<p style="text-align: center; color: var(--text-muted); padding: 20px;">No issues found for this time period</p>';
+                return;
+            }
+            
+            list.innerHTML = issues.map(issue => `
+                <div class="issue-item" onclick="focusIssue(${issue.lat}, ${issue.lng})">
+                    <div class="issue-icon ${issue.status}">
+                        <i class="fas ${getIssueIcon(issue.type)}"></i>
+                    </div>
+                    <div class="issue-details">
+                        <h4>${issue.title}</h4>
+                        <p>${issue.details.substring(0, 40)}...</p>
+                        <span class="issue-time">${getTimeAgo(issue.time)}</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        function getIssueIcon(type) {
+            const icons = {
+                pothole: 'fa-road',
+                garbage: 'fa-trash',
+                streetlight: 'fa-lightbulb',
+                water: 'fa-tint',
+                drainage: 'fa-water',
+                traffic: 'fa-traffic-light',
+                construction: 'fa-building',
+                trees: 'fa-tree',
+                stray: 'fa-paw',
+                other: 'fa-exclamation'
+            };
+            return icons[type] || 'fa-exclamation';
+        }
+        
+        function focusIssue(lat, lng) {
+            map.setView([lat, lng], 16);
+            
+            // Find and open popup for this marker
+            markers.forEach(marker => {
+                const pos = marker.getLatLng();
+                if (pos.lat === lat && pos.lng === lng) {
+                    marker.openPopup();
+                }
+            });
+        }
+        
+        function openAddIssueModal() {
+            const modal = document.getElementById('add-issue-modal');
+            modal.classList.add('show');
+            
+            // Get location for the modal
+            const locationInfo = document.getElementById('location-info');
+            
+            if (userLocation) {
+                locationInfo.innerHTML = `
+                    <p><i class="fas fa-map-marker-alt" style="color: #3b82f6;"></i> <strong>Location Detected</strong></p>
+                    <p>Lat: ${userLocation.lat.toFixed(6)}, Lng: ${userLocation.lng.toFixed(6)}</p>
+                `;
+            } else {
+                locationInfo.innerHTML = `
+                    <p><i class="fas fa-exclamation-triangle" style="color: #f59e0b;"></i> Location not detected</p>
+                    <p>Please enable location access or enter manually</p>
+                `;
+                
+                // Try to get location again
+                if (navigator.geolocation) {
+                    navigator.geolocation.getCurrentPosition(
+                        (position) => {
+                            userLocation = {
+                                lat: position.coords.latitude,
+                                lng: position.coords.longitude
+                            };
+                            locationInfo.innerHTML = `
+                                <p><i class="fas fa-map-marker-alt" style="color: #3b82f6;"></i> <strong>Location Detected</strong></p>
+                                <p>Lat: ${userLocation.lat.toFixed(6)}, Lng: ${userLocation.lng.toFixed(6)}</p>
+                            `;
+                        },
+                        () => {}
+                    );
+                }
+            }
+        }
+        
+        function closeAddIssueModal() {
+            document.getElementById('add-issue-modal').classList.remove('show');
+            document.getElementById('add-issue-form').reset();
+        }
+        
+        function handleAddIssue(e) {
+            e.preventDefault();
+            
+            if (!userLocation) {
+                showToast('Please enable location access to add an issue', 'error');
+                return;
+            }
+            
+            const type = document.getElementById('issue-type').value;
+            const title = document.getElementById('issue-title').value;
+            const details = document.getElementById('issue-details').value;
+            
+            // Create new issue
+            const newIssue = {
+                id: Date.now(),
+                type,
+                title,
+                lat: userLocation.lat,
+                lng: userLocation.lng,
+                status: 'reported',
+                time: Date.now(),
+                details: details || 'No additional details provided'
+            };
+            
+            // Add to data
+            issuesData.unshift(newIssue);
+            
+            // Save to localStorage
+            localStorage.setItem('civicMapIssues', JSON.stringify(issuesData));
+            
+            // Reload map
+            loadIssues();
+            
+            // Close modal
+            closeAddIssueModal();
+            
+            // Show success
+            showToast('Issue added successfully!', 'success');
+            
+            // Focus on new issue
+            focusIssue(newIssue.lat, newIssue.lng);
+        }
+        
+        function getTimeAgo(timestamp) {
+            const seconds = Math.floor((Date.now() - timestamp) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return `${Math.floor(seconds / 60)}m ago`;
+            if (seconds < 86400) return `${Math.floor(seconds / 3600)}h ago`;
+            if (seconds < 604800) return `${Math.floor(seconds / 86400)}d ago`;
+            
+            return new Date(timestamp).toLocaleDateString();
+        }
+        
+        function toggleDarkMode() {
+            const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+            document.documentElement.setAttribute('data-theme', isDark ? '' : 'dark');
+            document.getElementById('theme-toggle').querySelector('i').className = isDark ? 'fas fa-moon' : 'fas fa-sun';
+            localStorage.setItem('civicTheme', isDark ? 'light' : 'dark');
+        }
+        
+        function loadTheme() {
+            if (localStorage.getItem('civicTheme') === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                document.getElementById('theme-toggle').querySelector('i').className = 'fas fa-sun';
+            }
+        }
+        
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            toast.innerHTML = `<i class="fas fa-${type === 'success' ? 'check-circle' : 'exclamation-circle'}"></i> ${message}`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+        
+        // Load saved issues from localStorage
+        const savedIssues = localStorage.getItem('civicMapIssues');
+        if (savedIssues) {
+            issuesData = JSON.parse(savedIssues);
+        }
+    </script>
+</body>
+</html>
