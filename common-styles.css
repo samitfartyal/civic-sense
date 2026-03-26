@@ -723,36 +723,205 @@ body {
 }
 
 /* ===================================
-   RESPONSIVE DESIGN
+   RESPONSIVE DESIGN - MOBILE FIRST
    =================================== */
 
-@media (max-width: 768px) {
+/* Large Desktop (1200px and above) */
+@media (min-width: 1200px) {
+    .page-container {
+        max-width: 1200px;
+    }
+    
+    .glass-card {
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+}
+
+/* Desktop (992px - 1199px) */
+@media (min-width: 992px) and (max-width: 1199px) {
     .nav-links {
+        gap: 4px;
+    }
+    
+    .nav-link {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Tablet (768px - 991px) */
+@media (min-width: 768px) and (max-width: 991px) {
+    .nav-links {
+        display: flex;
+        gap: 4px;
+    }
+    
+    .nav-link {
+        padding: 8px 10px;
+        font-size: 0.8rem;
+    }
+    
+    .nav-link span {
+        display: none;
+    }
+    
+    .nav-link i {
+        font-size: 1.1rem;
+    }
+    
+    .mobile-menu-btn {
+        display: none;
+    }
+    
+    .mobile-nav {
+        display: none !important;
+    }
+    
+    .page-title {
+        font-size: 2rem;
+    }
+    
+    .form-row {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+/* Mobile Landscape & Small Tablet (576px - 767px) */
+@media (max-width: 767px) {
+    .main-nav {
+        height: 60px;
+    }
+    
+    .nav-links {
+        display: none !important;
+    }
+    
+    .nav-actions .btn-report-nav {
         display: none;
     }
     
     .mobile-menu-btn {
-        display: flex;
+        display: flex !important;
+    }
+    
+    .mobile-nav {
+        display: none;
     }
     
     .mobile-nav.show {
-        display: block;
+        display: flex !important;
+    }
+    
+    .page-wrapper {
+        padding-top: 80px;
+        padding-bottom: 90px;
+    }
+    
+    .page-container {
+        padding: 0 16px;
+    }
+    
+    .page-header {
+        margin-bottom: 24px;
+    }
+    
+    .page-badge {
+        font-size: 0.75rem;
+        padding: 6px 12px;
     }
     
     .page-title {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
     }
     
-    .form-row {
-        grid-template-columns: 1fr;
+    .page-subtitle {
+        font-size: 0.95rem;
+    }
+    
+    .glass-card {
+        border-radius: var(--radius-lg);
+    }
+    
+    .card-header {
+        padding: 16px 20px;
+    }
+    
+    .card-header-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+    
+    .card-header h2 {
+        font-size: 1.1rem;
     }
     
     .card-body {
         padding: 20px;
     }
     
+    .form-row {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+    
+    .form-group {
+        margin-bottom: 20px;
+    }
+    
+    .form-label {
+        font-size: 0.85rem;
+    }
+    
+    .form-input,
+    .form-textarea,
+    .form-select {
+        padding: 12px 14px;
+        font-size: 0.95rem;
+    }
+    
+    .form-textarea {
+        min-height: 100px;
+    }
+    
+    .file-upload-zone {
+        padding: 30px 20px;
+    }
+    
+    .file-upload-icon {
+        width: 50px;
+        height: 50px;
+        font-size: 1.2rem;
+    }
+    
+    .file-upload-text {
+        font-size: 0.95rem;
+    }
+    
+    .file-upload-hint {
+        font-size: 0.85rem;
+    }
+    
+    .btn {
+        padding: 12px 24px;
+        font-size: 0.95rem;
+    }
+    
+    .btn-lg {
+        padding: 14px 28px;
+        font-size: 1rem;
+    }
+    
+    .btn-sm {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+    
     .btn-group {
         flex-direction: column;
+        gap: 10px;
     }
     
     .btn-group .btn {
@@ -760,21 +929,254 @@ body {
     }
     
     .toast-container {
-        left: 20px;
-        right: 20px;
+        left: 16px;
+        right: 16px;
+        bottom: 80px;
+    }
+    
+    .toast {
+        padding: 12px 16px;
+        font-size: 0.9rem;
+    }
+    
+    .file-preview {
+        gap: 8px;
+    }
+    
+    .file-preview-item {
+        width: 80px;
+        height: 80px;
+    }
+    
+    .input-group .form-input {
+        padding-left: 44px;
+    }
+    
+    .input-group-icon {
+        left: 14px;
+        font-size: 0.9rem;
     }
 }
 
-@media (max-width: 480px) {
+/* Mobile Portrait (up to 575px) */
+@media (max-width: 575px) {
+    .main-nav {
+        height: 56px;
+    }
+    
+    .brand-icon {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+    
+    .brand-text {
+        font-size: 1.1rem;
+    }
+    
+    .theme-toggle {
+        width: 36px;
+        height: 36px;
+        font-size: 0.9rem;
+    }
+    
+    .mobile-menu-btn {
+        width: 36px;
+        height: 36px;
+        font-size: 1rem;
+    }
+    
+    .page-wrapper {
+        padding-top: 76px;
+        padding-bottom: 80px;
+    }
+    
+    .page-container {
+        padding: 0 12px;
+    }
+    
+    .page-badge {
+        font-size: 0.7rem;
+        padding: 5px 10px;
+    }
+    
     .page-title {
-        font-size: 1.5rem;
+        font-size: 1.4rem;
+    }
+    
+    .page-subtitle {
+        font-size: 0.9rem;
     }
     
     .card-header {
-        padding: 16px 20px;
+        padding: 14px 16px;
+    }
+    
+    .card-header-icon {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+    
+    .card-header h2 {
+        font-size: 1rem;
+    }
+    
+    .card-body {
+        padding: 16px;
+    }
+    
+    .form-label {
+        font-size: 0.8rem;
+        margin-bottom: 8px;
+    }
+    
+    .form-input,
+    .form-textarea,
+    .form-select {
+        padding: 11px 12px;
+        font-size: 0.9rem;
+        border-radius: var(--radius-md);
+    }
+    
+    .form-hint {
+        font-size: 0.75rem;
     }
     
     .file-upload-zone {
-        padding: 24px;
+        padding: 24px 16px;
+    }
+    
+    .file-upload-icon {
+        width: 44px;
+        height: 44px;
+        font-size: 1rem;
+    }
+    
+    .file-upload-text {
+        font-size: 0.9rem;
+    }
+    
+    .file-upload-hint {
+        font-size: 0.8rem;
+    }
+    
+    .btn {
+        padding: 11px 20px;
+        font-size: 0.9rem;
+        border-radius: var(--radius-md);
+    }
+    
+    .btn-lg {
+        padding: 13px 24px;
+        font-size: 0.95rem;
+    }
+    
+    .btn-sm {
+        padding: 9px 14px;
+        font-size: 0.8rem;
+    }
+    
+    .file-preview-item {
+        width: 70px;
+        height: 70px;
+    }
+    
+    .file-preview-remove {
+        width: 20px;
+        height: 20px;
+        font-size: 0.6rem;
+    }
+    
+    .status-badge {
+        padding: 4px 10px;
+        font-size: 0.7rem;
+    }
+    
+    .toast {
+        padding: 10px 14px;
+        font-size: 0.85rem;
+    }
+    
+    .toast i {
+        font-size: 0.9rem;
+    }
+    
+    /* Mobile Navigation Adjustments */
+    .mobile-nav {
+        height: 60px;
+    }
+    
+    .mobile-nav-link {
+        font-size: 0.65rem;
+        padding: 6px 8px;
+    }
+    
+    .mobile-nav-link i {
+        font-size: 1.1rem;
+    }
+}
+
+/* Very Small Devices (less than 360px) */
+@media (max-width: 360px) {
+    .page-title {
+        font-size: 1.2rem;
+    }
+    
+    .card-body {
+        padding: 12px;
+    }
+    
+    .form-input,
+    .form-textarea,
+    .form-select {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+    
+    .btn {
+        padding: 10px 16px;
+        font-size: 0.85rem;
+    }
+}
+
+/* Touch Device Optimizations */
+@media (hover: none) and (pointer: coarse) {
+    .btn:hover {
+        transform: none;
+    }
+    
+    .nav-link:hover {
+        background: transparent;
+    }
+    
+    .mobile-nav-link:hover {
+        background: transparent;
+    }
+    
+    .file-upload-zone:hover {
+        border-color: var(--border-color);
+        background: var(--bg-secondary);
+    }
+}
+
+/* Landscape Mobile */
+@media (max-height: 500px) and (orientation: landscape) {
+    .page-wrapper {
+        padding-top: 70px;
+        padding-bottom: 20px;
+    }
+    
+    .page-header {
+        margin-bottom: 16px;
+    }
+    
+    .page-title {
+        font-size: 1.3rem;
+        margin-bottom: 8px;
+    }
+    
+    .page-subtitle {
+        display: none;
     }
 }
