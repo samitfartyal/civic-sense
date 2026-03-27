@@ -2,6 +2,23 @@ const dotenv = require('dotenv').config();
 const express = require('express');
 const fetch = require('node-fetch');
 
+// Database connection
+let sql = null;
+try {
+  const postgres = require('postgres');
+  if (process.env.DATABASE_URL) {
+    sql = postgres(process.env.DATABASE_URL, {
+      ssl: 'require',
+      max: 10,
+      idle_timeout: 20,
+      connect_timeout: 10
+    });
+    console.log('Database connected successfully');
+  }
+} catch (error) {
+  console.log('Database not configured, using in-memory storage');
+}
+
 let openai = null;
 if (process.env.OPENAI_API_KEY) {
   const OpenAI = require('openai');
@@ -29,7 +46,7 @@ const staticPath = process.env.NODE_ENV === 'production'
   : __dirname;
 app.use(express.static(staticPath));
 
-// In-memory storage for serverless (Vercel doesn't persist files)
+// In-memory storage fallback
 const inMemoryData = {
   users: [],
   posts: [],
@@ -39,6 +56,28 @@ const inMemoryData = {
   comments: [],
   news: []
 };
+
+// ===================================
+// DATABASE HELPER FUNCTIONS
+// ===================================
+
+// Check if database is available
+function isDbConnected() {
+  return sql !== null;
+}
+
+// Execute query with fallback to in-memory
+async function dbQuery(operation, fallbackFn) {
+  if (isDbConnected()) {
+    try {
+      return await operation();
+    } catch (error) {
+      console.error('Database error:', error);
+      return fallbackFn();
+    }
+  }
+  return fallbackFn();
+}
 
 // Root route - serve dashboard
 app.get('/', (req, res) => {
@@ -89,29 +128,51 @@ function writeUserData(data) {
   }
 }
 
-app.post('/submit-form', (req, res) => {
+app.post('/submit-form', async (req, res) => {
   const { name, email, pincode, phone, gender } = req.body;
   if (!name || !email || !pincode || !phone) {
     return res.status(400).json({ error: 'Name, email, pincode and phone are required' });
   }
-  const users = readUserData();
-  const user = { 
-    name, 
-    email, 
-    pincode, 
-    phone, 
-    gender: gender || 'Not specified', 
-    submittedAt: new Date().toISOString() 
-  };
-  users.push(user);
-  writeUserData(users);
+  
+  const user = await dbQuery(
+    async () => {
+      // Insert into Supabase database
+      const result = await sql`
+        INSERT INTO users (name, email, pincode, phone, gender)
+        VALUES (${name}, ${email}, ${pincode}, ${phone}, ${gender || 'Not specified'})
+        ON CONFLICT (email) 
+        DO UPDATE SET name = ${name}, phone = ${phone}, pincode = ${pincode}
+        RETURNING *
+      `;
+      return result[0];
+    },
+    () => {
+      // Fallback to in-memory
+      const users = readUserData();
+      const newUser = { 
+        name, 
+        email, 
+        pincode, 
+        phone, 
+        gender: gender || 'Not specified', 
+        submittedAt: new Date().toISOString() 
+      };
+      users.push(newUser);
+      writeUserData(users);
+      return newUser;
+    }
+  );
+  
   console.log('User data received and stored:', user);
   res.json({ message: 'Form submitted successfully', user });
 });
 
 // Get all users
-app.get('/api/users', (req, res) => {
-  const users = readUserData();
+app.get('/api/users', async (req, res) => {
+  const users = await dbQuery(
+    async () => await sql`SELECT * FROM users ORDER BY created_at DESC`,
+    () => readUserData()
+  );
   res.json(users);
 });
 
@@ -418,28 +479,74 @@ async function writeCommentsData(data) {
   }
 }
 
-app.post('/reports', (req, res) => {
-  const { title, description, contactName, contactEmail } = req.body;
+app.post('/reports', async (req, res) => {
+  const { title, description, contactName, contactEmail, location, reportType, urgency } = req.body;
   if (!title || !description || !contactName || !contactEmail) {
     return res.status(400).json({ error: 'All report fields are required' });
   }
 
-  const reports = readReportsData();
-  const newReport = {
-    id: Date.now().toString(),
-    title,
-    description,
-    contactName,
-    contactEmail,
-    photos: req.body.photos || [],
-    submittedAt: new Date()
-  };
+  const report = await dbQuery(
+    async () => {
+      const result = await sql`
+        INSERT INTO reports (title, description, contact_name, contact_email, location, report_type, urgency, status)
+        VALUES (${title}, ${description}, ${contactName}, ${contactEmail}, ${location || ''}, ${reportType || 'other'}, ${urgency || 'medium'}, 'reported')
+        RETURNING *
+      `;
+      return result[0];
+    },
+    () => {
+      const reports = readReportsData();
+      const newReport = {
+        id: Date.now().toString(),
+        title,
+        description,
+        contactName,
+        contactEmail,
+        location,
+        reportType,
+        urgency: urgency || 'medium',
+        status: 'reported',
+        photos: req.body.photos || [],
+        submittedAt: new Date().toISOString()
+      };
+      reports.push(newReport);
+      writeReportsData(reports);
+      return newReport;
+    }
+  );
 
-  reports.push(newReport);
-  writeReportsData(reports);
+  console.log('New report received:', report);
+  res.json({ message: 'Report submitted successfully', report });
+});
 
-  console.log('New report received:', newReport);
-  res.json({ message: 'Report submitted successfully', report: newReport });
+// Get all reports
+app.get('/api/reports', async (req, res) => {
+  const { status, hours } = req.query;
+  
+  const reports = await dbQuery(
+    async () => {
+      let query = sql`SELECT * FROM reports ORDER BY created_at DESC`;
+      if (status) {
+        query = sql`SELECT * FROM reports WHERE status = ${status} ORDER BY created_at DESC`;
+      }
+      if (hours) {
+        const cutoff = new Date(Date.now() - (parseInt(hours) * 60 * 60 * 1000)).toISOString();
+        query = sql`SELECT * FROM reports WHERE created_at >= ${cutoff} ORDER BY created_at DESC`;
+      }
+      return await query;
+    },
+    () => {
+      let reports = readReportsData();
+      if (status) reports = reports.filter(r => r.status === status);
+      if (hours) {
+        const cutoff = Date.now() - (parseInt(hours) * 60 * 60 * 1000);
+        reports = reports.filter(r => new Date(r.submittedAt).getTime() >= cutoff);
+      }
+      return reports;
+    }
+  );
+  
+  res.json(reports);
 });
 
 const sharesFilePath = path.join(__dirname, 'shares.json');
@@ -982,6 +1089,113 @@ app.get('/api/news/ai', async (req, res) => {
   } catch (error) {
     res.status(500).json({ error: 'Failed to fetch AI-powered news' });
   }
+});
+
+/* ==================== MAP ISSUES HANDLING ==================== */
+app.post('/api/map-issues', async (req, res) => {
+  const { type, title, details, latitude, longitude } = req.body;
+  if (!type || !title || !latitude || !longitude) {
+    return res.status(400).json({ error: 'Type, title, latitude and longitude are required' });
+  }
+
+  const issue = await dbQuery(
+    async () => {
+      const result = await sql`
+        INSERT INTO map_issues (type, title, details, latitude, longitude, status)
+        VALUES (${type}, ${title}, ${details || ''}, ${latitude}, ${longitude}, 'reported')
+        RETURNING *
+      `;
+      return result[0];
+    },
+    () => {
+      const issues = JSON.parse(localStorage.getItem('civicMapIssues') || '[]');
+      const newIssue = {
+        id: Date.now(),
+        type,
+        title,
+        details,
+        lat: latitude,
+        lng: longitude,
+        status: 'reported',
+        time: Date.now(),
+        created_at: new Date().toISOString()
+      };
+      issues.unshift(newIssue);
+      return newIssue;
+    }
+  );
+
+  res.json({ message: 'Map issue added successfully', issue });
+});
+
+app.get('/api/map-issues', async (req, res) => {
+  const { status, hours } = req.query;
+  
+  const issues = await dbQuery(
+    async () => {
+      let query = sql`SELECT * FROM map_issues ORDER BY created_at DESC`;
+      if (status) {
+        query = sql`SELECT * FROM map_issues WHERE status = ${status} ORDER BY created_at DESC`;
+      }
+      if (hours) {
+        const cutoff = new Date(Date.now() - (parseInt(hours) * 60 * 60 * 1000)).toISOString();
+        query = sql`SELECT * FROM map_issues WHERE created_at >= ${cutoff} ORDER BY created_at DESC`;
+      }
+      return await query;
+    },
+    () => []
+  );
+  
+  res.json(issues);
+});
+
+/* ==================== STATISTICS API ==================== */
+app.get('/api/stats', async (req, res) => {
+  const stats = await dbQuery(
+    async () => {
+      const reports = await sql`SELECT COUNT(*) as count, status FROM reports GROUP BY status`;
+      const users = await sql`SELECT COUNT(*) as count FROM users`;
+      const posts = await sql`SELECT COUNT(*) as count FROM posts`;
+      const mapIssues = await sql`SELECT COUNT(*) as count, status FROM map_issues GROUP BY status`;
+      
+      let totalReports = 0;
+      let resolvedReports = 0;
+      reports.forEach(r => {
+        totalReports += parseInt(r.count);
+        if (r.status === 'resolved') resolvedReports += parseInt(r.count);
+      });
+      
+      let totalMapIssues = 0;
+      let resolvedMapIssues = 0;
+      mapIssues.forEach(m => {
+        totalMapIssues += parseInt(m.count);
+        if (m.status === 'resolved') resolvedMapIssues += parseInt(m.count);
+      });
+      
+      return {
+        totalIssues: totalReports + totalMapIssues,
+        resolvedIssues: resolvedReports + resolvedMapIssues,
+        activeUsers: parseInt(users[0]?.count || 0),
+        totalPosts: parseInt(posts[0]?.count || 0)
+      };
+    },
+    async () => {
+      const reports = readReportsData();
+      const users = readUserData();
+      const posts = readPostsData();
+      const mapIssues = JSON.parse(localStorage.getItem('civicMapIssues') || '[]');
+      
+      return {
+        totalIssues: reports.length + mapIssues.length,
+        resolvedIssues: reports.filter(r => r.status === 'resolved').length + 
+                       mapIssues.filter(i => i.status === 'resolved').length,
+        activeUsers: users.length,
+        totalPosts: posts.length
+      };
+    }
+  );
+  
+  res.json(stats);
 });
 
 /* ==================== START SERVER ==================== */
