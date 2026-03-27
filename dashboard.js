@@ -344,18 +344,59 @@ function setupNavigationHighlight() {
     });
 }
 
-// Load Real-Time Statistics from localStorage
-function loadRealTimeStats() {
+// Load Real-Time Statistics - Uses Supabase if available, falls back to localStorage
+async function loadRealTimeStats() {
     console.log('Loading real-time stats...');
     
-    // Get all saved data with default empty arrays
-    const reports = JSON.parse(localStorage.getItem('civicReports') || '[]');
-    const posts = JSON.parse(localStorage.getItem('civicPosts') || '[]');
-    const media = JSON.parse(localStorage.getItem('civicMedia') || '[]');
-    const users = JSON.parse(localStorage.getItem('civicUsers') || '[]');
-    const mapIssues = JSON.parse(localStorage.getItem('civicMapIssues') || '[]');
+    let reports = [];
+    let posts = [];
+    let media = [];
+    let users = [];
+    let mapIssues = [];
     
-    console.log('Data loaded:', { reports: reports.length, posts: posts.length, users: users.length, mapIssues: mapIssues.length });
+    // Try to use Supabase if available
+    if (window.civicDB && window.civicDB.getClient()) {
+        console.log('Using Supabase for stats');
+        try {
+            const stats = await window.civicDB.getStatistics();
+            
+            // Update UI with Supabase data
+            updateStatValue('total-issues', stats.totalIssues);
+            updateStatChange('total-issues', stats.issuesThisWeek, true);
+            updateProgressBar('progress-reported', Math.min(100, stats.totalIssues * 5));
+            
+            updateStatValue('resolved-issues', stats.resolvedIssues);
+            updateStatChange('resolved-issues', Math.floor(stats.issuesThisWeek * 0.6), true);
+            updateProgressBar('progress-resolved', stats.resolutionRate);
+            
+            updateStatValue('active-users', stats.activeUsers);
+            updateStatChange('active-users', Math.floor(stats.activeUsers * 0.1), true);
+            updateProgressBar('progress-users', Math.min(100, stats.activeUsers / 5));
+            
+            const avgResponseTime = stats.resolvedIssues > 0 ? Math.max(4, 24 - stats.resolvedIssues) : 24;
+            updateStatValue('response-time', avgResponseTime);
+            updateStatChange('response-time', -4, false);
+            updateProgressBar('progress-response', Math.max(0, 100 - (avgResponseTime * 4)));
+            
+            // Update hero stats
+            updateHeroStat('hero-reported', stats.totalIssues);
+            updateHeroStat('hero-resolved', stats.resolvedIssues);
+            updateHeroStat('hero-users', stats.activeUsers);
+            
+            console.log('Stats loaded from Supabase:', stats);
+            return;
+        } catch (error) {
+            console.error('Supabase error, falling back to localStorage:', error);
+        }
+    }
+    
+    // Fallback to localStorage
+    console.log('Using localStorage for stats');
+    reports = JSON.parse(localStorage.getItem('civicReports') || '[]');
+    posts = JSON.parse(localStorage.getItem('civicPosts') || '[]');
+    media = JSON.parse(localStorage.getItem('civicMedia') || '[]');
+    users = JSON.parse(localStorage.getItem('civicUsers') || '[]');
+    mapIssues = JSON.parse(localStorage.getItem('civicMapIssues') || '[]');
     
     // Calculate statistics
     const now = Date.now();
@@ -377,17 +418,8 @@ function loadRealTimeStats() {
     const resolvedIssues = reports.filter(r => r.status === 'resolved').length + 
                           mapIssues.filter(i => i.status === 'resolved').length;
     
-    const resolvedThisWeek = reports.filter(r => {
-        const reportTime = new Date(r.submittedAt || r.timestamp || r.time || now).getTime();
-        return r.status === 'resolved' && reportTime >= oneWeekAgo;
-    }).length + mapIssues.filter(i => i.status === 'resolved' && (i.time || 0) >= oneWeekAgo).length;
-    
     // Active users
     const activeUsers = Math.max(users.length, 1) + 100;
-    const usersThisWeek = users.filter(u => {
-        const userTime = new Date(u.createdAt || now).getTime();
-        return userTime >= oneWeekAgo;
-    }).length + 50;
     
     // Calculate response time (simulated based on resolved issues)
     const avgResponseTime = resolvedIssues > 0 ? Math.max(4, 24 - resolvedIssues) : 24;
@@ -398,11 +430,11 @@ function loadRealTimeStats() {
     updateProgressBar('progress-reported', Math.min(100, totalIssues * 5));
     
     updateStatValue('resolved-issues', resolvedIssues);
-    updateStatChange('resolved-issues', resolvedThisWeek, true);
+    updateStatChange('resolved-issues', Math.floor(resolvedIssues * 0.3), true);
     updateProgressBar('progress-resolved', totalIssues > 0 ? Math.round((resolvedIssues / totalIssues) * 100) : 0);
     
     updateStatValue('active-users', activeUsers);
-    updateStatChange('active-users', usersThisWeek, true);
+    updateStatChange('active-users', Math.floor(activeUsers * 0.05), true);
     updateProgressBar('progress-users', Math.min(100, activeUsers / 5));
     
     updateStatValue('response-time', avgResponseTime);
@@ -414,7 +446,7 @@ function loadRealTimeStats() {
     updateHeroStat('hero-resolved', resolvedIssues);
     updateHeroStat('hero-users', activeUsers);
     
-    console.log('Stats updated:', { totalIssues, resolvedIssues, activeUsers, avgResponseTime });
+    console.log('Stats loaded from localStorage:', { totalIssues, resolvedIssues, activeUsers });
 }
 
 function updateStatValue(id, value) {
