@@ -255,6 +255,19 @@ body {
     color: var(--text-primary);
     cursor: pointer;
     font-size: 1.2rem;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+}
+
+.mobile-menu-btn:hover {
+    background: var(--primary-50);
+    color: var(--primary-600);
+    border-color: var(--primary-200);
+}
+
+.mobile-menu-btn:active {
+    transform: scale(0.95);
 }
 
 /* Mobile Navigation */
